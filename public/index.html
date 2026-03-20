@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CTC Online — Simulador Ferroviario Multijugador</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body class="lobby-body">
+
+<!-- HOME -->
+<div id="screen-home" class="screen active">
+<div class="hero"><div class="hero-bg"><div class="track-line t1"></div><div class="track-line t2"></div><div class="track-line t3"></div><div class="signal-deco s1"><span class="sig-r"></span><span class="sig-y"></span><span class="sig-g active"></span></div><div class="signal-deco s2"><span class="sig-r active"></span><span class="sig-y"></span><span class="sig-g"></span></div></div>
+<div class="hero-content">
+<div class="logo-mark"><div class="logo-icon"><svg viewBox="0 0 48 48" fill="none"><rect x="4" y="16" width="40" height="16" rx="3" stroke="currentColor" stroke-width="2.5"/><circle cx="14" cy="36" r="4" stroke="currentColor" stroke-width="2"/><circle cx="34" cy="36" r="4" stroke="currentColor" stroke-width="2"/><line x1="8" y1="16" x2="12" y2="8" stroke="currentColor" stroke-width="2"/><line x1="40" y1="16" x2="36" y2="8" stroke="currentColor" stroke-width="2"/><line x1="12" y1="8" x2="36" y2="8" stroke="currentColor" stroke-width="2"/></svg></div><h1>CTC<span class="accent">Online</span></h1></div>
+<p class="subtitle">Simulador Ferroviario Multijugador</p>
+<p class="desc">Control de Tráfico Centralizado en tiempo real.<br>Guadalajara — Cercedilla · 32 estaciones</p>
+<div class="home-actions">
+<button class="btn btn-primary btn-lg" onclick="showScreen('screen-create')"><span class="btn-icon">+</span> Crear Partida</button>
+<button class="btn btn-secondary btn-lg" onclick="showScreen('screen-join')"><span class="btn-icon">→</span> Unirse a Partida</button>
+</div>
+<div class="roles-preview">
+<div class="role-card"><div class="role-icon rc-icon">RC</div><div class="role-name">Responsable de<br>Circulación</div><div class="role-desc">Controla señales, desvíos e itinerarios</div></div>
+<div class="role-card"><div class="role-icon cgo-icon">CGO</div><div class="role-name">Centro de<br>Gestión</div><div class="role-desc">Supervisa el tráfico en tiempo real</div></div>
+<div class="role-card"><div class="role-icon maq-icon">MAQ</div><div class="role-name">Maquinista</div><div class="role-desc">Conduce trenes por la línea</div></div>
+</div></div></div></div>
+
+<!-- CREATE -->
+<div id="screen-create" class="screen">
+<div class="form-container">
+<button class="btn-back" onclick="showScreen('screen-home')">← Volver</button>
+<h2>Crear Partida</h2>
+<div class="form-group"><label>Tu nombre</label><input type="text" id="create-name" placeholder="Ej: Santi" maxlength="20" autocomplete="off"></div>
+<div class="form-group"><label>Tu rol</label><div class="role-selector">
+<button class="role-btn selected" data-role="rc" onclick="selectRole(this,'create')"><span class="role-badge rc-icon">RC</span> Resp. Circulación</button>
+<button class="role-btn" data-role="cgo" onclick="selectRole(this,'create')"><span class="role-badge cgo-icon">CGO</span> Centro Gestión</button>
+<button class="role-btn" data-role="maquinista" onclick="selectRole(this,'create')"><span class="role-badge maq-icon">MAQ</span> Maquinista</button>
+</div></div>
+<div class="form-group"><label>Escenario</label><div class="scenario-card"><div class="scenario-name">Guadalajara — Cercedilla</div><div class="scenario-desc">32 estaciones · Doble vía · Bloqueos BAB · Malla integrada</div></div></div>
+<button class="btn btn-primary btn-lg btn-full" onclick="createRoom()" id="btn-create">Crear Sala</button>
+<div id="create-error" class="error-msg"></div>
+</div></div>
+
+<!-- JOIN -->
+<div id="screen-join" class="screen">
+<div class="form-container">
+<button class="btn-back" onclick="showScreen('screen-home')">← Volver</button>
+<h2>Unirse a Partida</h2>
+<div class="form-group"><label>Tu nombre</label><input type="text" id="join-name" placeholder="Ej: Carlos" maxlength="20" autocomplete="off"></div>
+<div class="form-group"><label>Código de sala</label><input type="text" id="join-code" placeholder="ABC123" maxlength="6" autocomplete="off" style="text-transform:uppercase;letter-spacing:0.3em;text-align:center;font-size:1.5rem;"></div>
+<div class="form-group"><label>Tu rol</label><div class="role-selector">
+<button class="role-btn" data-role="rc" onclick="selectRole(this,'join')"><span class="role-badge rc-icon">RC</span> Resp. Circulación</button>
+<button class="role-btn selected" data-role="cgo" onclick="selectRole(this,'join')"><span class="role-badge cgo-icon">CGO</span> Centro Gestión</button>
+<button class="role-btn" data-role="maquinista" onclick="selectRole(this,'join')"><span class="role-badge maq-icon">MAQ</span> Maquinista</button>
+</div></div>
+<button class="btn btn-primary btn-lg btn-full" onclick="joinRoom()" id="btn-join">Unirse</button>
+<div id="join-error" class="error-msg"></div>
+</div></div>
+
+<!-- LOBBY -->
+<div id="screen-lobby" class="screen">
+<div class="lobby-container">
+<div class="lobby-header"><h2>Sala de Espera</h2><div class="room-code-display"><span class="code-label">CÓDIGO:</span><span class="code-value" id="lobby-code">------</span><button class="btn btn-sm" onclick="copyCode()">Copiar</button></div></div>
+<div class="lobby-scenario"><span>Escenario:</span> <strong>Guadalajara — Cercedilla</strong> · 32 estaciones</div>
+<div class="lobby-players">
+<div class="players-column"><h3><span class="role-badge rc-icon">RC</span> Resp. Circulación <span class="count" id="count-rc">0/5</span></h3><ul id="list-rc" class="player-list"></ul></div>
+<div class="players-column"><h3><span class="role-badge cgo-icon">CGO</span> Centro Gestión <span class="count" id="count-cgo">0/5</span></h3><ul id="list-cgo" class="player-list"></ul></div>
+<div class="players-column"><h3><span class="role-badge maq-icon">MAQ</span> Maquinistas <span class="count" id="count-maq">0/20</span></h3><ul id="list-maquinista" class="player-list"></ul></div>
+</div>
+<div class="lobby-actions" id="host-actions" style="display:none"><button class="btn btn-primary btn-lg" onclick="startGame()" id="btn-start">🚂 Iniciar Partida</button></div>
+<div class="lobby-status" id="lobby-status">Esperando al host...</div>
+</div></div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script src="/js/app.js"></script>
+</body>
+</html>

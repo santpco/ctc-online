@@ -1,0 +1,1879 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CTC — Guadalajara–Cercedilla</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@400;600;700&display=swap');
+:root{--bg:#07090d;--panel:#0d1117;--border:#1c2535;--trk:#1e3a2a;--lit:#00e87a;--occ:#ff3e3e;--res:#ffc144;--text:#c8dfe8;--mut:#4a6070;--acc:#00e87a;--dan:#ff4444;--M:'Share Tech Mono',monospace;--U:'Rajdhani',sans-serif;}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:var(--U);height:100vh;display:flex;flex-direction:column;overflow:hidden;}
+header{display:flex;align-items:center;gap:12px;padding:6px 12px;background:var(--panel);border-bottom:1px solid var(--border);flex-shrink:0;}
+header h1{font-size:16px;font-weight:700;letter-spacing:1px;color:var(--acc);text-transform:uppercase;}
+.sub{font-size:10px;color:var(--mut);font-family:var(--M);}
+.pill{font-size:9px;font-family:var(--M);padding:2px 7px;border-radius:3px;font-weight:700;background:#0a2a18;color:var(--acc);border:1px solid var(--acc);}
+.clock{font-family:var(--M);font-size:11px;margin-left:auto;color:var(--mut);}
+.app{display:flex;flex:1;overflow:hidden;}
+.sb{width:270px;background:var(--panel);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow-y:auto;flex-shrink:0;}
+.sg{padding:7px 9px;border-bottom:1px solid var(--border);}
+.sg-t{font-size:12px;letter-spacing:1.5px;color:var(--mut);text-transform:uppercase;margin-bottom:5px;font-family:var(--M);cursor:pointer;user-select:none;display:flex;align-items:center;gap:4px;}
+.sg-t::before{content:'▾';font-size:8px;}
+.sg.cl .sg-t::before{content:'▸';}
+.sg.cl .sg-b{display:none;}
+.br{display:flex;gap:3px;flex-wrap:wrap;margin-bottom:3px;}
+button{font-family:var(--U);font-weight:600;font-size:10px;padding:3px 6px;border-radius:3px;border:1px solid var(--border);background:#111922;color:var(--text);cursor:pointer;transition:all .1s;}
+button:hover{background:#1a2535;border-color:var(--mut);}
+button.ac{background:#0a2218;border-color:var(--acc);color:var(--acc);}
+button.dn{background:#1a0a0a;border-color:var(--dan);color:var(--dan);}
+button.bv{background:#0a1520;border-color:#3a7080;color:#6ad0e0;font-size:9px;flex:1;min-width:38px;padding:3px 2px;}
+button.bv:hover{background:#0d1f2e;}
+button.bs{background:#0f0a20;border-color:#6a50a0;color:#b090e0;font-size:9px;flex:1;min-width:95px;padding:4px 3px;line-height:1.2;text-align:left;}
+button:disabled{opacity:.35;cursor:not-allowed;}
+select{font-family:var(--U);font-size:10px;background:#111922;color:var(--text);border:1px solid var(--border);border-radius:3px;padding:2px 5px;width:100%;margin-bottom:3px;}
+.kv{display:grid;grid-template-columns:1fr auto;gap:2px 5px;font-family:var(--M);font-size:8px;}
+.kv span:nth-child(even){color:var(--acc);text-align:right;}
+.kv span:nth-child(odd){color:var(--mut);}
+.ri{font-family:var(--M);font-size:8px;padding:2px 3px;border-radius:2px;margin-bottom:1px;display:flex;gap:4px;align-items:center;background:#0a2218;}
+.ri .rt{color:var(--acc);font-weight:700;min-width:45px;}
+#log{flex:1;min-height:50px;max-height:140px;overflow-y:auto;padding:5px 8px;font-family:var(--M);font-size:8px;line-height:1.4;}
+.le{padding:1px 0;border-bottom:1px solid rgba(255,255,255,.03);}
+.lt{color:var(--mut);margin-right:3px;}
+.lok{color:var(--acc);}.ler{color:var(--dan);}.li{color:var(--res);}
+.bp{background:#080f18;border:1px solid #1c3a50;border-radius:4px;padding:4px 6px;margin-top:3px;}
+.bs-r{display:flex;align-items:center;gap:4px;font-family:var(--M);font-size:9px;}
+.bd{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.bd.libre{background:#c8a030;box-shadow:0 0 3px #c8a030;}
+.bd.pedido,.bd.concedido{background:#00e87a;box-shadow:0 0 3px #00e87a;}
+.bd.ocupado{background:var(--occ);box-shadow:0 0 3px var(--occ);}
+.dw{flex:1;position:relative;overflow:hidden;display:flex;flex-direction:column;background:#060a0e;background-image:radial-gradient(circle at 50% 50%,#0c1820 0%,#060a0e 70%);}
+#diagram{display:block;}
+.td{stroke:#1a2a22;stroke-width:4;fill:none;stroke-linecap:round;}
+.tl{stroke:#c8a030;stroke-width:4;fill:none;stroke-linecap:round;}
+.to{stroke:var(--occ);stroke-width:5;fill:none;stroke-linecap:round;}
+.tr{stroke:#00e87a;stroke-width:5;fill:none;stroke-linecap:round;}
+.bl{stroke:#c8a030;stroke-width:4;fill:none;stroke-linecap:round;stroke-dasharray:8 4;}
+.bo{stroke:var(--occ);stroke-width:5;fill:none;stroke-linecap:round;}
+.bpd{stroke:#ffd54f;stroke-width:4;fill:none;stroke-linecap:round;stroke-dasharray:6 3;}
+.bc{stroke:#00e87a;stroke-width:5;fill:none;stroke-linecap:round;}
+.cvn{fill:#c8a030;font-family:var(--M);font-size:7px;pointer-events:none;text-anchor:middle;}
+.tlb{fill:#2a6045;font-family:var(--M);font-size:10px;pointer-events:none;text-anchor:middle;font-weight:bold;}
+.slb{fill:#4a7080;font-family:var(--M);font-size:9px;pointer-events:none;text-anchor:middle;}
+.trr{fill:#e8a020;stroke:#604000;stroke-width:1.5;}
+.trl{fill:#1a0800;font-family:var(--M);font-size:11px;font-weight:900;text-anchor:middle;pointer-events:none;}
+@keyframes flashX{0%,49%{opacity:1}50%,100%{opacity:0}}
+.pn-flash{animation:flashX 0.8s infinite;}
+.sh{fill:transparent;cursor:pointer;}
+.sr{stroke:#ffdd44;stroke-width:2;fill:none;stroke-dasharray:4 3;animation:sp 2s linear infinite;}
+@keyframes sp{to{stroke-dashoffset:-20;}}
+.pend{stroke:#ff8800;stroke-width:2;fill:rgba(255,136,0,0.08);stroke-dasharray:6 2;animation:sp 1.5s linear infinite;}
+#mi{position:absolute;top:6px;right:10px;font-family:var(--M);font-size:9px;color:var(--mut);background:rgba(7,9,13,.85);border:1px solid var(--border);padding:2px 8px;border-radius:3px;}
+.hint{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);background:rgba(7,9,13,.88);border:1px solid var(--border);border-radius:4px;padding:4px 10px;font-family:var(--M);font-size:9px;color:var(--mut);white-space:nowrap;pointer-events:none;}
+.hint b{color:var(--text);}
+.grid{stroke:#0e1820;stroke-width:1;}
+.mt{display:flex;gap:0;margin-bottom:4px;border:1px solid var(--border);border-radius:4px;overflow:hidden;}
+.mt button{flex:1;border:none;border-radius:0;border-right:1px solid var(--border);font-size:9px;padding:4px 2px;}
+.mt button:last-child{border-right:none;}
+.mt button.ac{background:#0a2218;color:var(--acc);}
+.ra{display:grid;grid-template-columns:1fr 1fr;gap:2px;margin-top:2px;}
+.rb{font-size:8px;padding:2px 3px;text-align:center;}
+.stl{font-size:7px;color:#6ad0e0;font-weight:bold;margin:2px 0 1px;}
+#mallaPane{background:#07090d;position:relative;}
+#mallaPane canvas{width:100%;height:100%;display:block;}
+.viewToggle{position:fixed;bottom:12px;right:12px;z-index:200;display:flex;gap:0;border:1px solid var(--border);border-radius:5px;overflow:hidden;background:var(--panel);}
+.viewToggle button{border:none;border-right:1px solid var(--border);font-size:15px;padding:10px 18px;font-family:var(--M);background:var(--panel);color:var(--mut);cursor:pointer;}
+.viewToggle button:last-child{border-right:none;}
+.viewToggle button.ac{background:#0a2218;color:var(--acc);}
+</style>
+</head>
+<body>
+<header>
+<h1>CTC · Guadalajara–Cercedilla</h1><span class="sub">32 EST.</span><span class="pill" id="hs">OK</span><span class="clock" id="clock">00:00:00</span>
+<span style="margin-left:auto;display:flex;align-items:center;gap:6px"><span style="font-size:14px;color:var(--mut);font-family:var(--M)">Vel:</span><select id="spdSel" onchange="setTrSpeed(this.value)" style="font-size:14px;font-family:var(--M);background:#111922;color:var(--text);border:1px solid var(--border);border-radius:3px;padding:3px 6px"><option value="0.5">0.5×</option><option value="1" selected>1×</option><option value="2">2×</option><option value="3">3×</option><option value="5">5×</option></select></span>
+</header>
+<div class="app">
+<aside class="sb">
+<div class="sg"><div class="sg-t" style="cursor:default">Modo</div><div class="sg-b">
+<div class="mt"><button id="bMA" class="ac" onclick="setMode('auto')">🚦 Itinerarios</button><button id="bMM" onclick="setMode('manual')">🔧 Manual</button></div>
+<div style="font-size:8px;color:var(--mut);font-family:var(--M)" id="mDesc">Clic señal entrada + señal salida para establecer ruta</div>
+</div></div>
+<div class="sg" id="mpanel" style="display:none"><div class="sg-t" style="cursor:default">Manual</div><div class="sg-b">
+<div style="font-size:9px;color:var(--acc);margin-bottom:2px;font-family:var(--M)" id="sLbl">—</div>
+<div id="stdB" class="br"><button onclick="mAsp('STOP')">🔴</button><button onclick="mAsp('PREC')">🟡</button><button onclick="mAsp('GO')">🟢</button><button onclick="mAsp('REBASE')">🔴⚪</button></div>
+<div id="retB" style="display:none"><div class="ra"><button class="rb" onclick="mAsp('STOP')">🔴</button><button class="rb" onclick="mAsp('REBASE')">🔴⚪</button><button class="rb" onclick="mAsp('WHITE_VERT')">⚪↕</button><button class="rb" onclick="mAsp('WHITE_HORIZ')">⚪↔</button></div></div>
+<div id="avzB" style="display:none" class="br"><button onclick="mAsp('STOP')">🔴</button><button onclick="mAsp('AN_PAR')">🟡</button><button onclick="mAsp('PREC_PRE')">🟡9</button><button onclick="mAsp('PREC_ADV')">🟢🟡</button><button onclick="mAsp('GO')">🟢</button></div>
+</div></div>
+<div class="sg"><div class="sg-t" onclick="tSec(this)">🚆 Escenarios</div><div class="sg-b">
+<select id="scnSel" style="width:100%;margin-bottom:4px">
+<option value="0">— Seleccionar escenario —</option>
+<option value="1">→ Par directa V2 (vía doble)</option>
+<option value="3">← Impar directa V1</option>
+</select>
+<button onclick="runScn()" style="width:100%">▶ Lanzar escenario</button>
+</div></div>
+<div class="sg"><div class="sg-t" onclick="tSec(this)">Tren Manual</div><div class="sg-b">
+<select id="tDir"><option value="AB">→ E1→E7</option><option value="BA">← E7→E1</option></select>
+<button onclick="spawnTrain()" style="width:100%">+ Lanzar</button>
+</div></div>
+<div class="sg cl"><div class="sg-t" onclick="tSec(this)">🚂 Trenes Activos</div><div class="sg-b"><div id="trPanel" style="font-size:8px;color:var(--mut);font-family:var(--M)">Sin trenes</div></div></div>
+<div class="sg cl"><div class="sg-t" onclick="tSec(this)">📐 Capas</div><div class="sg-b">
+<div class="br"><button class="bv ac" id="lSN" onclick="tLayer('gSN',this)">Señales</button><button class="bv" id="lCV" onclick="tLayer('gCVN',this)">Nombres CV</button></div>
+<div class="br"><button class="bv ac" id="lAG" onclick="tLayer('gW',this)">Aparatos</button><button class="bv ac" id="lAN" onclick="tLayer('gAND',this)">Andenes</button><button class="bv ac" id="lLB" onclick="tLayer('gL',this)">Etiquetas</button></div>
+<div style="margin-top:4px;font-size:7px;color:var(--mut);font-family:var(--M)">Señales visibles:</div>
+<div class="br" style="margin-top:2px"><button class="bv ac" id="sfAll" onclick="sigFilter('all')">Todas</button><button class="bv" id="sfR" onclick="sigFilter('R')">→ Pares</button><button class="bv" id="sfL" onclick="sigFilter('L')">← Impares</button></div>
+</div></div>
+<div class="sg cl"><div class="sg-t" onclick="tSec(this)">Rutas Rápidas</div><div class="sg-b" id="qrBody"></div></div>
+<div class="sg cl" id="sgBlk"><div class="sg-t" onclick="tSec(this)">Bloqueos</div><div class="sg-b" id="blkBody"></div></div>
+<div class="sg cl"><div class="sg-t" onclick="tSec(this)">🎬 Grabación</div><div class="sg-b">
+<div id="recControls">
+<button id="recStartBtn" onclick="recStart()" style="width:100%;margin-bottom:4px;background:#3a1515;color:#ff6666;border:1px solid #662222;padding:4px;font-size:11px;cursor:pointer;border-radius:3px">⏺ Grabar escenario</button>
+<div id="recActive" style="display:none">
+<div style="font-size:10px;color:#ff4444;font-family:var(--M);margin-bottom:4px;display:flex;align-items:center;gap:4px"><span style="display:inline-block;width:8px;height:8px;background:#ff2222;border-radius:50%;animation:flashX 0.6s infinite"></span> GRABANDO — <span id="recEvtCount">0</span> eventos</div>
+<button onclick="recStop()" style="width:100%;margin-bottom:4px;background:#1a3320;color:#44dd77;border:1px solid #2a5533;padding:4px;font-size:11px;cursor:pointer;border-radius:3px">⏹ Detener y guardar</button>
+</div>
+</div>
+<div style="display:flex;gap:4px;margin-top:4px"><button onclick="recExport()" style="flex:1;padding:3px;font-size:9px;cursor:pointer;background:#111922;color:var(--mut);border:1px solid var(--border);border-radius:3px">💾 Exportar</button><button onclick="recImport()" style="flex:1;padding:3px;font-size:9px;cursor:pointer;background:#111922;color:var(--mut);border:1px solid var(--border);border-radius:3px">📂 Importar</button></div>
+<input type="file" id="recFileIn" accept=".json" style="display:none" onchange="recLoadFile(this)">
+<div id="recList" style="font-size:9px;color:var(--mut);font-family:var(--M);margin-top:4px">Sin grabaciones</div>
+</div></div>
+<div class="sg cl"><div class="sg-t" onclick="tSec(this)">Itinerarios</div><div class="sg-b"><div id="rList" style="font-size:8px;color:var(--mut);font-family:var(--M)">—</div></div></div>
+<div class="sg cl"><div class="sg-t" onclick="tSec(this)">Estado</div><div class="sg-b"><div class="kv" id="swSt"></div><hr style="border-color:var(--border);margin:3px 0"><div class="kv" id="sgSt"></div></div></div>
+<div class="sg"><div class="br"><button id="pBtn" onclick="tPause()">⏸</button><button onclick="stepSim()" id="sBtn" disabled>⏭</button><button onclick="undoLast()" title="Deshacer último itinerario">↶</button><button class="dn" onclick="resetSim()">↺</button></div></div>
+<div id="log"></div>
+</aside>
+<div class="dw" id="dw">
+<div id="ctcPane" style="flex:1;overflow:auto;position:relative;min-height:0">
+<svg id="diagram" viewBox="0 0 36040 510" width="36040" height="510" style="min-width:36040px">
+<defs></defs>
+<g id="gG"></g><g id="gAND"></g><g id="gT"></g><g id="gW"></g><g id="gCVN" style="display:none"></g><g id="gSN"></g><g id="gS"></g><g id="gL"></g><g id="gB"></g><g id="gTR"></g>
+</svg>
+<div id="mi">MODO: ITINERARIOS · Clic señal→señal</div>
+<div id="trPop" style="display:none;position:absolute;background:rgba(7,9,13,.95);border:1px solid var(--acc);border-radius:5px;padding:6px 8px;z-index:100;font-family:var(--M);font-size:9px">
+<div style="color:var(--acc);margin-bottom:4px;font-weight:bold" id="trPopId">—</div>
+<div style="display:flex;gap:4px">
+<button onclick="trCmd('stop')" style="padding:3px 8px;font-size:8px;cursor:pointer;background:#661616;color:#ff6666;border:1px solid #882222;border-radius:3px">⏹ Detener</button>
+<button onclick="trCmd('go')" style="padding:3px 8px;font-size:8px;cursor:pointer;background:#0e3320;color:#44dd77;border:1px solid #1a5533;border-radius:3px">▶ Reanudar</button>
+<button onclick="trCmd('rev')" style="padding:3px 8px;font-size:8px;cursor:pointer;background:#1a1a40;color:#8888ff;border:1px solid #333366;border-radius:3px">↩ Retroceder</button>
+</div>
+</div>
+</div>
+<div id="mallaPane" style="display:none;flex:1;min-height:0">
+<canvas id="mallaCanvas"></canvas>
+</div>
+</div>
+<div class="viewToggle" id="viewToggle">
+<button class="ac" id="vCTC" onclick="setView('ctc')">📺 CTC</button>
+<button id="vMalla" onclick="setView('malla')">📊 Malla</button>
+<button id="vBoth" onclick="setView('both')">⬚ Ambos</button>
+</div>
+</div>
+<script>
+window.onerror=function(msg,src,line,col,err){
+  var d=document.createElement('div');
+  d.style.cssText='position:fixed;top:0;left:0;right:0;padding:20px;background:#300;color:#f88;font:14px monospace;z-index:99999;white-space:pre-wrap';
+  d.textContent='ERROR linea '+line+': '+msg+'\n'+(err&&err.stack?err.stack:'');
+  document.body.appendChild(d);
+};
+const Y={V3:155,V1:265,V2:375};
+const ST={leftEdge:25,leftApproachEnd:145,leftThroat1:195,leftThroat1b:225,leftThroat2:255,stationStart:295,center:520,stationEnd:680,rightThroat1:728,rightThroat2b:750,rightThroat2:782,rightApproachStart:822,rightEdge:942};
+const DX=1120;
+const STNS=['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', 'a', 'b', 'c', 'd', 'e', 'f'];
+const XS={};STNS.forEach((p,i)=>{XS[p]={};for(const k in ST)XS[p][k]=ST[k]+DX*i;});
+const BLK=[null,{xL:XS['A'].rightEdge,xR:XS['B'].leftEdge},{xL:XS['B'].rightEdge,xR:XS['C'].leftEdge},{xL:XS['C'].rightEdge,xR:XS['D'].leftEdge},{xL:XS['D'].rightEdge,xR:XS['E'].leftEdge},{xL:XS['E'].rightEdge,xR:XS['F'].leftEdge},{xL:XS['F'].rightEdge,xR:XS['G'].leftEdge},{xL:XS['G'].rightEdge,xR:XS['H'].leftEdge},{xL:XS['H'].rightEdge,xR:XS['I'].leftEdge},{xL:XS['I'].rightEdge,xR:XS['J'].leftEdge},{xL:XS['J'].rightEdge,xR:XS['K'].leftEdge},{xL:XS['K'].rightEdge,xR:XS['L'].leftEdge},{xL:XS['L'].rightEdge,xR:XS['M'].leftEdge},{xL:XS['M'].rightEdge,xR:XS['N'].leftEdge},{xL:XS['N'].rightEdge,xR:XS['O'].leftEdge},{xL:XS['O'].rightEdge,xR:XS['P'].leftEdge},{xL:XS['P'].rightEdge,xR:XS['Q'].leftEdge},{xL:XS['Q'].rightEdge,xR:XS['R'].leftEdge},{xL:XS['R'].rightEdge,xR:XS['S'].leftEdge},{xL:XS['S'].rightEdge,xR:XS['T'].leftEdge},{xL:XS['T'].rightEdge,xR:XS['U'].leftEdge},{xL:XS['U'].rightEdge,xR:XS['V'].leftEdge},{xL:XS['V'].rightEdge,xR:XS['W'].leftEdge},{xL:XS['W'].rightEdge,xR:XS['X'].leftEdge},{xL:XS['X'].rightEdge,xR:XS['Y'].leftEdge},{xL:XS['Y'].rightEdge,xR:XS['Z'].leftEdge},{xL:XS['Z'].rightEdge,xR:XS['a'].leftEdge},{xL:XS['a'].rightEdge,xR:XS['b'].leftEdge},{xL:XS['b'].rightEdge,xR:XS['c'].leftEdge},{xL:XS['c'].rightEdge,xR:XS['d'].leftEdge},{xL:XS['d'].rightEdge,xR:XS['e'].leftEdge},{xL:XS['e'].rightEdge,xR:XS['f'].leftEdge}];
+// dualV2 config: which stations have V2 continuing right/left
+const DV2R={'A':true,'B':true,'C':true,'D':true,'E':true,'F':true,'G':true,'H':true,'I':true,'J':true,'K':true,'L':true,'M':true,'N':true,'O':true,'P':true,'Q':true,'R':true,'S':true,'T':true,'U':true,'V':true,'W':true,'X':true,'Y':true,'Z':true}; // V2 continues right
+const DV2L={'B':true,'C':true,'D':true,'E':true,'F':true,'G':true,'H':true,'I':true,'J':true,'K':true,'L':true,'M':true,'N':true,'O':true,'P':true,'Q':true,'R':true,'S':true,'T':true,'U':true,'V':true,'W':true,'X':true,'Y':true,'Z':true,'a':true}; // V2 continues left
+
+// Segments — CVE boundaries between avanzada and entrada signals (not overlapping block)
+const SEGS={};
+STNS.forEach(p=>{const X=XS[p];
+  SEGS[p+'CVE2']={y:Y.V1,x1:X.leftEdge,x2:X.leftApproachEnd};
+  SEGS[p+'CV1']={y:Y.V1,x1:X.stationStart,x2:X.stationEnd};
+  SEGS[p+'CV2']={y:Y.V2,x1:X.stationStart,x2:X.stationEnd};
+  SEGS[p+'CV3']={y:Y.V3,x1:X.stationStart,x2:X.stationEnd};
+  SEGS[p+'CVE1']={y:Y.V1,x1:X.rightApproachStart,x2:X.rightEdge};
+  if(DV2R[p])SEGS[p+'CVE3']={y:Y.V2,x1:X.rightApproachStart,x2:X.rightEdge};
+  if(DV2L[p])SEGS[p+'CVE4']={y:Y.V2,x1:X.leftEdge,x2:X.leftApproachEnd};
+});
+for(let i=1;i<=31;i++)SEGS['BLK'+i]={y:Y.V1,x1:BLK[i].xL,x2:BLK[i].xR,isBlk:true};
+// V2 blocks for double-track sections
+for(let i=1;i<=26;i++)SEGS['BLKV2_'+i]={y:Y.V2,x1:BLK[i].xL,x2:BLK[i].xR,isBlk:true};
+
+// Switches
+const SWD={};
+STNS.forEach(p=>{const X=XS[p];
+  SWD[p+'A7']={x:X.leftThroat1,yt:Y.V1,yr:Y.V2,s:'L'};
+  SWD[p+'A6']={x:X.leftThroat2,yt:Y.V1,yr:Y.V3,s:'L'};
+  SWD[p+'A3']={x:X.rightThroat1,yt:Y.V1,yr:Y.V3,s:'R'};
+  SWD[p+'A1']={x:X.rightThroat2,yt:Y.V1,yr:Y.V2,s:'R'};
+  if(DV2R[p])SWD[p+'A5']={x:X.rightThroat2b,yt:Y.V2,yr:Y.V1,s:'R'};
+  if(DV2L[p])SWD[p+'A8']={x:X.leftThroat1b,yt:Y.V2,yr:Y.V1,s:'L'};
+});
+
+// Signals
+const SIGS={};
+STNS.forEach(p=>{const X=XS[p];
+  SIGS[p+"E'2"]={l:"E'2",x:X.leftEdge+12,y:Y.V1,d:'R',t:'entry',st:p,avz:true};
+  SIGS[p+'E2']={l:'E2',x:X.leftApproachEnd-10,y:Y.V1,d:'R',t:'entry',st:p};
+  SIGS[p+'R2']={l:'R2',x:X.leftApproachEnd+26,y:Y.V1,d:'R',t:'ret',st:p,le:p+'E2'};
+  SIGS[p+'S1/3']={l:'S1/3',x:X.stationStart+5,y:Y.V3,d:'L',t:'exit',st:p,rs:{[p+'A7']:'N',[p+'A6']:'R'},via:'V3'};
+  SIGS[p+'S1/1']={l:'S1/1',x:X.stationStart+5,y:Y.V1,d:'L',t:'exit',st:p,rs:{[p+'A7']:'N',[p+'A6']:'N'},via:'V1'};
+  SIGS[p+'S1/2']={l:'S1/2',x:X.stationStart+5,y:Y.V2,d:'L',t:'exit',st:p,rs:{[p+'A7']:'R'},via:'V2'};
+  SIGS[p+'S2/3']={l:'S2/3',x:X.stationEnd-5,y:Y.V3,d:'R',t:'exit',st:p,rs:{[p+'A3']:'R',[p+'A1']:'N'},via:'V3'};
+  SIGS[p+'S2/1']={l:'S2/1',x:X.stationEnd-5,y:Y.V1,d:'R',t:'exit',st:p,rs:{[p+'A3']:'N',[p+'A1']:'N'},via:'V1'};
+  SIGS[p+'S2/2']={l:'S2/2',x:X.stationEnd-5,y:Y.V2,d:'R',t:'exit',st:p,rs:{[p+'A1']:'R'},via:'V2'};
+  SIGS[p+'E1']={l:'E1',x:X.rightApproachStart+10,y:Y.V1,d:'L',t:'entry',st:p};
+  SIGS[p+"E'1"]={l:"E'1",x:X.rightEdge-12,y:Y.V1,d:'L',t:'entry',st:p,avz:true};
+  SIGS[p+'R1']={l:'R1',x:X.rightApproachStart-26,y:Y.V1,d:'L',t:'ret',st:p,le:p+'E1'};
+  if(DV2R[p]){
+    SIGS[p+'E3']={l:'E3',x:X.rightApproachStart+10,y:Y.V2,d:'L',t:'entry',st:p};
+    SIGS[p+"E'3"]={l:"E'3",x:X.rightEdge-12,y:Y.V2,d:'L',t:'entry',st:p,avz:true};
+    SIGS[p+'R3']={l:'R3',x:X.rightApproachStart-26,y:Y.V2,d:'L',t:'ret',st:p,le:p+'E3'};
+  }
+  if(DV2L[p]){
+    SIGS[p+'E4']={l:'E4',x:X.leftApproachEnd-10,y:Y.V2,d:'R',t:'entry',st:p};
+    SIGS[p+"E'4"]={l:"E'4",x:X.leftEdge+12,y:Y.V2,d:'R',t:'entry',st:p,avz:true};
+    SIGS[p+'R4']={l:'R4',x:X.leftApproachEnd+26,y:Y.V2,d:'R',t:'ret',st:p,le:p+'E4'};
+  }
+});
+// Fix Est.3/4 S2/2 switch requirements for manual mode (need A5 context)
+// S2/2 can go either via A1(merge) or A5(straight V2) - route handles actual sw
+// Fix Est.4 S1/2 similarly for A8
+
+// Routes
+const RT={};
+STNS.forEach(p=>{const X=XS[p];
+  RT[p+'E2→CV1']={f:p+'E2',sw:{[p+'A7']:'N',[p+'A6']:'N'},sg:[p+'CVE2',p+'CV1'],via:'V1'};
+  RT[p+'E2→CV2']={f:p+'E2',sw:{[p+'A7']:'R',[p+'A6']:'N'},sg:[p+'CVE2',p+'CV2'],via:'V2'};
+  RT[p+'E2→CV3']={f:p+'E2',sw:{[p+'A7']:'N',[p+'A6']:'R'},sg:[p+'CVE2',p+'CV3'],via:'V3'};
+  RT[p+'E1→CV1']={f:p+'E1',sw:{[p+'A1']:'N',[p+'A3']:'N'},sg:[p+'CVE1',p+'CV1'],via:'V1'};
+  RT[p+'E1→CV2']={f:p+'E1',sw:{[p+'A1']:'R',[p+'A3']:'N'},sg:[p+'CVE1',p+'CV2'],via:'V2'};
+  RT[p+'E1→CV3']={f:p+'E1',sw:{[p+'A1']:'N',[p+'A3']:'R'},sg:[p+'CVE1',p+'CV3'],via:'V3'};
+  RT[p+'S2/1→out']={f:p+'S2/1',sw:{[p+'A3']:'N',[p+'A1']:'N'},sg:[p+'CVE1'],ex:true,dir:'R'};
+  RT[p+'S2/2→out']={f:p+'S2/2',sw:{[p+'A1']:'R',[p+'A3']:'N'},sg:[p+'CVE1'],ex:true,dir:'R'};
+  RT[p+'S2/3→out']={f:p+'S2/3',sw:{[p+'A3']:'R',[p+'A1']:'N'},sg:[p+'CVE1'],ex:true,dir:'R'};
+  RT[p+'S1/1→out']={f:p+'S1/1',sw:{[p+'A7']:'N',[p+'A6']:'N'},sg:[p+'CVE2'],ex:true,dir:'L'};
+  RT[p+'S1/2→out']={f:p+'S1/2',sw:{[p+'A7']:'R',[p+'A6']:'N'},sg:[p+'CVE2'],ex:true,dir:'L'};
+  RT[p+'S1/3→out']={f:p+'S1/3',sw:{[p+'A7']:'N',[p+'A6']:'R'},sg:[p+'CVE2'],ex:true,dir:'L'};
+  if(DV2R[p]){
+    // E3 (entrada V2 derecha) → SOLO puede ir a V2
+    RT[p+'E3→CV2']={f:p+'E3',sw:{[p+'A5']:'N'},sg:[p+'CVE3',p+'CV2'],via:'V2'};
+    // S2/1 (salida V1 derecha) → SOLO puede ir a V1
+    // (ya definido arriba como S2/1→out via CVE1)
+    // S2/2 (salida V2 derecha) → puede ir a V2 o a V1
+    RT[p+'S2/2→outV2']={f:p+'S2/2',sw:{[p+'A1']:'N',[p+'A5']:'N'},sg:[p+'CVE3'],ex:true,dir:'R',blkV:'V2'};
+    // S2/2→out (V2→V1): cruza A5=R, luego A1=N para seguir V1
+    RT[p+'S2/2→out'].sw[p+'A5']='R';
+    RT[p+'S2/2→out'].sw[p+'A1']='N';
+    // S2/3 (salida V3 derecha) → SOLO puede ir a V1 (ya definido arriba)
+  }
+  if(DV2L[p]){
+    // E4 (entrada V2 izquierda) → SOLO puede ir a V2
+    RT[p+'E4→CV2']={f:p+'E4',sw:{[p+'A8']:'N'},sg:[p+'CVE4',p+'CV2'],via:'V2'};
+    // S1/1 (salida V1 izquierda) → SOLO puede ir a V1
+    // (ya definido arriba como S1/1→out via CVE2)
+    // S1/2 (salida V2 izquierda) → puede ir a V2 o a V1
+    RT[p+'S1/2→outV2']={f:p+'S1/2',sw:{[p+'A7']:'N',[p+'A8']:'N'},sg:[p+'CVE4'],ex:true,dir:'L',blkV:'V2'};
+    // S1/2→out (V2→V1): cruza A8=R, luego A7=N para seguir V1
+    RT[p+'S1/2→out'].sw[p+'A8']='R';
+    RT[p+'S1/2→out'].sw[p+'A7']='N';
+    // S1/3 (salida V3 izquierda) → SOLO puede ir a V1 (ya definido arriba)
+  }
+});
+
+// State
+const S={mode:'auto',paused:false,tick:0,sel:null,pending:null,ar:{},seg:{},sig:{},sw:{},trains:[],tri:{},
+ blk:[null,{s:'libre',d:null},{s:'libre',d:null},{s:'libre',d:null},{s:'libre',d:null},{s:'libre',d:null},{s:'libre',d:null},{s:'libre',d:null},{s:'libre',d:null},{s:'libre',d:null},{s:'libre',d:null},{s:'libre',d:null},{s:'libre',d:null},{s:'libre',d:null},{s:'libre',d:null},{s:'libre',d:null},{s:'libre',d:null},{s:'libre',d:null},{s:'libre',d:null},{s:'libre',d:null},{s:'libre',d:null},{s:'libre',d:null},{s:'libre',d:null},{s:'libre',d:null},{s:'libre',d:null},{s:'libre',d:null},{s:'libre',d:null},{s:'libre',d:null},{s:'libre',d:null},{s:'libre',d:null},{s:'libre',d:null},{s:'libre',d:null}],
+ blkV2:[null,{s:'libre',d:null},{s:'libre',d:null},{s:'libre',d:null},{s:'libre',d:null},{s:'libre',d:null},{s:'libre',d:null},{s:'libre',d:null},{s:'libre',d:null},{s:'libre',d:null},{s:'libre',d:null},{s:'libre',d:null},{s:'libre',d:null},{s:'libre',d:null},{s:'libre',d:null},{s:'libre',d:null},{s:'libre',d:null},{s:'libre',d:null},{s:'libre',d:null},{s:'libre',d:null},{s:'libre',d:null},{s:'libre',d:null},{s:'libre',d:null},{s:'libre',d:null},{s:'libre',d:null},{s:'libre',d:null},{s:'libre',d:null},null,null,null,null,null]};
+let tPar=0,tImpar=1; // pares→AB, impares→BA
+let trSpeedMult=1;
+function setTrSpeed(v){trSpeedMult=parseFloat(v);log('⚡ Velocidad ×'+trSpeedMult,'i');}
+const ns='http://www.w3.org/2000/svg';
+function el(t,a={}){const e=document.createElementNS(ns,t);for(const[k,v]of Object.entries(a))e.setAttribute(k,v);return e;}
+function tx(t,a={}){const e=el('text',a);e.textContent=t;return e;}
+const gT=document.getElementById('gT'),gW=document.getElementById('gW'),gS=document.getElementById('gS'),gTR=document.getElementById('gTR'),gL=document.getElementById('gL'),gG=document.getElementById('gG'),gB=document.getElementById('gB'),gCVN=document.getElementById('gCVN'),gSN=document.getElementById('gSN'),gAND=document.getElementById('gAND');
+function tSec(e){e.parentElement.classList.toggle('cl');}
+function tLayer(id,btn){const g=document.getElementById(id);if(!g)return;const vis=g.style.display!=='none';g.style.display=vis?'none':'';btn.classList.toggle('ac',!vis);}
+function sigFilter(mode){
+  document.getElementById('sfAll').classList.toggle('ac',mode==='all');
+  document.getElementById('sfR').classList.toggle('ac',mode==='R');
+  document.getElementById('sfL').classList.toggle('ac',mode==='L');
+  // Filter signal bodies in gS
+  for(const c of gS.children){
+    const d=c.getAttribute('data-dir');
+    if(!d){c.style.display='';continue;}
+    c.style.display=(mode==='all'||d===mode)?'':'none';
+  }
+  // Filter signal labels in gSN
+  for(const c of gSN.children){
+    const d=c.getAttribute('data-dir');
+    if(!d){c.style.display='';continue;}
+    c.style.display=(mode==='all'||d===mode)?'':'none';
+  }
+}
+function setMode(m){S.mode=m;document.getElementById('bMA').classList.toggle('ac',m==='auto');document.getElementById('bMM').classList.toggle('ac',m==='manual');document.getElementById('mpanel').style.display=m==='manual'?'block':'none';document.getElementById('mi').textContent=m==='auto'?'MODO: ITINERARIOS · Clic señal→señal':'MODO: MANUAL';document.getElementById('mDesc').textContent=m==='auto'?'Clic señal entrada + señal salida para establecer ruta':'Clic señal y cambiar aspecto manualmente';}
+
+// ═══ DRAWING ═══
+function drawGrid(){const maxX=STNS.length*DX+500;for(let x=100;x<maxX;x+=200)gG.appendChild(el('line',{x1:x,y1:0,x2:x,y2:460,class:'grid'}));}
+function addSeg(id,pts){if(!SEGS[id])return;const p=pts.map(p=>`${p.x},${p.y}`).join(' ');const e=el('polyline',{points:p,class:'tl'});gT.appendChild(e);S.seg[id]={el:e,occ:false,res:false};}
+function bufStop(x,y){const g=el('g');g.appendChild(el('line',{x1:x,y1:y-8,x2:x,y2:y+8,stroke:'#2a5040','stroke-width':3}));g.appendChild(el('rect',{x:x-3,y:y-7,width:6,height:14,fill:'#1e3a2a',stroke:'#2a5040'}));gT.appendChild(g);}
+
+function drawStation(p,name){
+  const X=XS[p],dR=DV2R[p],dL=DV2L[p];
+  // === LEFT SIDE ===
+  addSeg(p+'CVE2',[{x:X.leftEdge,y:Y.V1},{x:X.leftApproachEnd,y:Y.V1}]);
+  gT.appendChild(el('line',{x1:X.leftApproachEnd,y1:Y.V1,x2:X.stationStart,y2:Y.V1,class:'td','stroke-width':3}));
+  // A6 branch: V1→V3
+  gT.appendChild(el('line',{x1:X.leftThroat2,y1:Y.V1,x2:X.stationStart,y2:Y.V3,class:'td','stroke-width':3}));
+  if(dL){
+    // V2 straight from left
+    addSeg(p+'CVE4',[{x:X.leftEdge,y:Y.V2},{x:X.leftApproachEnd,y:Y.V2}]);
+    gT.appendChild(el('line',{x1:X.leftApproachEnd,y1:Y.V2,x2:X.stationStart,y2:Y.V2,class:'td','stroke-width':3}));
+    // A8 crossover branch: V2(A8) → V1(A7) — only connection V2↔V1
+    gT.appendChild(el('line',{x1:X.leftThroat1b,y1:Y.V2,x2:X.leftThroat1,y2:Y.V1,class:'td','stroke-width':3}));
+  } else {
+    // Standard A7 branch: V1→V2 (V2 ends at buffer stop)
+    gT.appendChild(el('line',{x1:X.leftThroat1,y1:Y.V1,x2:X.stationStart,y2:Y.V2,class:'td','stroke-width':3}));
+  }
+  // === STATION TRACKS ===
+  addSeg(p+'CV3',[{x:X.stationStart,y:Y.V3},{x:X.stationEnd,y:Y.V3}]);
+  addSeg(p+'CV1',[{x:X.stationStart,y:Y.V1},{x:X.stationEnd,y:Y.V1}]);
+  addSeg(p+'CV2',[{x:X.stationStart,y:Y.V2},{x:X.stationEnd,y:Y.V2}]);
+  // === RIGHT SIDE ===
+  // V1 throat
+  gT.appendChild(el('line',{x1:X.stationEnd,y1:Y.V1,x2:X.rightApproachStart,y2:Y.V1,class:'td','stroke-width':3}));
+  // A3 branch: V3→V1
+  gT.appendChild(el('line',{x1:X.stationEnd,y1:Y.V3,x2:X.rightThroat1,y2:Y.V1,class:'td','stroke-width':3}));
+  if(dR){
+    // V2 straight through to right
+    addSeg(p+'CVE3',[{x:X.rightApproachStart,y:Y.V2},{x:X.rightEdge,y:Y.V2}]);
+    gT.appendChild(el('line',{x1:X.stationEnd,y1:Y.V2,x2:X.rightApproachStart,y2:Y.V2,class:'td','stroke-width':3}));
+    // A5 crossover branch: V2(A5) → V1(A1) — only connection V2↔V1
+    gT.appendChild(el('line',{x1:X.rightThroat2b,y1:Y.V2,x2:X.rightThroat2,y2:Y.V1,class:'td','stroke-width':3}));
+  } else {
+    // Standard V2→V1 merge (A1 only, V2 ends here)
+    gT.appendChild(el('line',{x1:X.stationEnd,y1:Y.V2,x2:X.rightThroat2,y2:Y.V1,class:'td','stroke-width':3}));
+  }
+  addSeg(p+'CVE1',[{x:X.rightApproachStart,y:Y.V1},{x:X.rightEdge,y:Y.V1}]);
+  // Buffer stops
+  if(!dL)bufStop(X.stationStart,Y.V2);
+  bufStop(X.stationStart,Y.V3);bufStop(X.stationEnd,Y.V3);
+  if(!dR)bufStop(X.stationEnd,Y.V2);
+  // Labels
+  const cx=(X.stationStart+X.stationEnd)/2;
+  gL.appendChild(el('rect',{x:cx-72,y:420,width:144,height:22,rx:3,fill:'#060e18',stroke:'#1c3050','stroke-width':1}));
+  gL.appendChild(tx(name,{x:cx,y:435,fill:'#3a6090','font-family':'Share Tech Mono,monospace','font-size':'12','text-anchor':'middle','font-weight':'bold'}));
+  for(const[t,y]of[['VIA 3',Y.V3-14],['VIA 1',Y.V1-14],['VIA 2',Y.V2-14]])gL.appendChild(tx(t,{x:cx,y,class:'tlb'}));
+}
+function drawBlk(n){
+ const b=BLK[n];
+ gB.appendChild(el('line',{x1:b.xL,y1:Y.V1,x2:b.xR,y2:Y.V1,class:'bl',id:'bt'+n}));
+ if(n<=26)gB.appendChild(el('line',{x1:b.xL,y1:Y.V2,x2:b.xR,y2:Y.V2,class:'bl',id:'btv2_'+n}));
+ // Triángulos de establecimiento de bloqueo
+ const sz=14;
+ const stPairs=[];for(let i=0;i<STNS.length-1;i++)stPairs.push([STNS[i],STNS[i+1]]);
+ const [pL,pR]=stPairs[n-1];
+ const lx=XS[pL].rightApproachStart+10;
+ const rx2=XS[pR].leftApproachEnd-10;
+ if(!S.tri)S.tri={};
+ if(!S.tri[n])S.tri[n]={};
+ const mkSet=(k,yBase)=>{
+  const o={};
+  o.LR=drawTri(lx+sz*1.6,yBase,sz,'R');
+  o.LL=drawTri(lx-sz*1.6,yBase,sz,'L');
+  o.RL=drawTri(rx2-sz*1.6,yBase,sz,'L');
+  o.RR=drawTri(rx2+sz*1.6,yBase,sz,'R');
+  S.tri[n][k]=o;
+ };
+ // Bottom triangles (below V2) = V2 block state
+ mkSet('v2',Y.V2+48);
+ // Top triangles (above V3, double-track blocks) = V1 block state
+ if(n<=26)mkSet('v1',Y.V3-44);
+}
+function drawTri(cx,cy,sz,d){const pts=d==='R'?`${cx-sz},${cy-sz*.6} ${cx-sz},${cy+sz*.6} ${cx+sz},${cy}`:`${cx+sz},${cy-sz*.6} ${cx+sz},${cy+sz*.6} ${cx-sz},${cy}`;const e=el('polygon',{points:pts,fill:'#0e1e14',stroke:'#1e3828','stroke-width':2,'stroke-linejoin':'round'});gB.appendChild(e);return e;}
+function updTri(n){
+ const triN=S.tri&&S.tri[n];if(!triN)return;
+ const gF='#00b850',gS2='#00ff70',rF='#b52020',rS2='#ff3030';
+ const resetSet=(set)=>{for(const t of Object.values(set||{}))if(t){t.setAttribute('fill','#0e1e14');t.setAttribute('stroke','#1e3828');}};
+ const colorSet=(set,dir)=>{
+  if(!set)return;
+  const isAB=dir==='→';
+  if(isAB){
+   if(set.LR){set.LR.setAttribute('fill',gF);set.LR.setAttribute('stroke',gS2);}
+   if(set.RR){set.RR.setAttribute('fill',rF);set.RR.setAttribute('stroke',rS2);}
+  }else{
+   if(set.RL){set.RL.setAttribute('fill',gF);set.RL.setAttribute('stroke',gS2);}
+   if(set.LL){set.LL.setAttribute('fill',rF);set.LL.setAttribute('stroke',rS2);}
+  }
+ };
+ // V1 triangles (top of screen in double-track) → V1 block state
+ if(triN.v1){
+  resetSet(triN.v1);
+  const bs=S.blk[n];
+  if((bs.s==='concedido'||bs.s==='ocupado')&&bs.d)colorSet(triN.v1,bs.d);
+ }
+ // V2 triangles (bottom of screen) → V2 block state (or V1 for single-track blocks)
+ if(triN.v2){
+  resetSet(triN.v2);
+  const bv2=(n<=26&&S.blkV2[n])?S.blkV2[n]:S.blk[n];
+  if(bv2&&(bv2.s==='concedido'||bv2.s==='ocupado')&&bv2.d)colorSet(triN.v2,bv2.d);
+ }
+}
+
+// ═══ SWITCHES (ADIF NAS 816) ═══
+function drawSwitches(){for(const[id,sw]of Object.entries(SWD))createSw(id,sw);}
+function createSw(id,sw){
+  const g=el('g',{cursor:'pointer'});g.addEventListener('click',()=>onSw(id));
+  const dx=sw.s==='L'?24:-24;
+  // Trace line (shows current position)
+  const pl=el('line',{x1:sw.x,y1:sw.yt,x2:sw.x+dx,y2:sw.yt,stroke:'#ffffff','stroke-width':3,'stroke-linecap':'round',id:'sl'+id,'pointer-events':'none'});
+  // Pivot indicator
+  const piv=el('circle',{cx:sw.x,cy:sw.yt,r:5,fill:'#c8a030',stroke:'#c8a030','stroke-width':1.5,id:'sp'+id});
+  g.appendChild(pl);g.appendChild(piv);
+  // Name label
+  g.appendChild(tx(id.replace(/^[A-D]/,''),{x:sw.x,y:sw.yt+18,fill:'#4a7090','font-family':'Share Tech Mono,monospace','font-size':'8','text-anchor':'middle','pointer-events':'none'}));
+  gW.appendChild(g);S.sw[id]={pos:'N',lk:false,pl,piv};
+}
+function updSw(id){
+  const sw=S.sw[id],d=SWD[id],dx=d.s==='L'?24:-24;
+  // Trace position: straight on trunk for N, deviated for R
+  sw.pl.setAttribute('x2',d.x+dx);
+  sw.pl.setAttribute('y2',sw.pos==='N'?d.yt:d.yt+(d.yr-d.yt)*.5);
+  // ADIF colors: locked=verde+azul, libre=amarillo+blanco
+  const traceC=sw.lk?'#3a8aff':'#ffffff';
+  const pivC=sw.lk?'#00e87a':'#c8a030';
+  sw.pl.setAttribute('stroke',traceC);
+  sw.piv.setAttribute('fill',pivC);sw.piv.setAttribute('stroke',pivC);
+}
+
+// ═══ SIGNALS ═══
+function drawSignals(){for(const[id,sg]of Object.entries(SIGS))createSig(id,sg);}
+const OFF='#0d1a0d',LC={red:'#ff2b2b',green:'#00e87a',yellow:'#ffcc00',white:'#ddeeff',off:OFF};
+function mk(c){return c.map(x=>({c:LC[x]||OFF,g:x!=='off'}));}
+function stdL(a){switch(a){case'GO':return mk(['green','off','off','off']);case'PREC':return mk(['off','off','off','yellow']);case'PREC_ADV':return mk(['green','off','off','yellow']);case'REBASE':return mk(['off','red','white','off']);default:return mk(['off','red','off','off']);}}
+function avzL(a){switch(a){case'GO':return mk(['green','off','off']);case'AN_PAR':return mk(['off','off','yellow']);case'PREC_PRE':return mk(['off','off','yellow']);case'PREC_ADV':return mk(['green','off','yellow']);default:return mk(['off','red','off']);}}
+function retL(a){switch(a){case'WHITE_VERT':return mk(['white','off','white','off']);case'WHITE_HORIZ':return mk(['off','off','white','white']);case'REBASE':return mk(['white','red','off','off']);default:return mk(['off','red','off','off']);}}
+
+function createSig(id,sg){
+  const g=el('g',{cursor:'pointer',class:'signal-body','data-dir':sg.d});g.addEventListener('click',()=>onSig(id));
+  const isR=sg.t==='ret',isA=!!sg.avz,ad=sg.d==='R'?-1:1;
+  let lenses=[],panel9=null;
+  if(isR){
+    const hy=sg.y-48;
+    g.appendChild(el('line',{x1:sg.x,y1:hy+22,x2:sg.x,y2:sg.y,stroke:'#1a3028','stroke-width':2,'pointer-events':'none'}));
+    g.appendChild(el('rect',{x:sg.x-10,y:hy,width:20,height:22,rx:2,fill:'#0a0f0a',stroke:'#3a5c3a','stroke-width':1.5,'pointer-events':'none'}));
+    for(const p of [{cx:sg.x-5,cy:hy+6},{cx:sg.x+5,cy:hy+6},{cx:sg.x-5,cy:hy+16},{cx:sg.x+5,cy:hy+16}])
+      lenses.push(el('circle',{cx:p.cx,cy:p.cy,r:3.5,fill:OFF,stroke:'#0d2030','stroke-width':.5,'pointer-events':'none'}));
+    gSN.appendChild(tx(sg.l,{x:sg.x,y:hy-3,class:'slb','pointer-events':'none','data-dir':sg.d}));
+    g.appendChild(el('rect',{x:sg.x-12,y:hy-6,width:24,height:40,fill:'transparent',class:'sh'}));
+  } else if(isA){
+    const hy=sg.y-46;
+    g.appendChild(el('line',{x1:sg.x,y1:hy+33,x2:sg.x,y2:sg.y,stroke:'#1a3028','stroke-width':2,'pointer-events':'none'}));
+    g.appendChild(el('rect',{x:sg.x-6,y:hy,width:12,height:33,rx:2,fill:'#080f14',stroke:'#1e3848','stroke-width':1.5,'pointer-events':'none'}));
+    for(const ly of [hy+6,hy+16.5,hy+27])lenses.push(el('circle',{cx:sg.x,cy:ly,r:3.8,fill:OFF,stroke:'#0d2030','stroke-width':.5,'pointer-events':'none'}));
+    const py=hy+35;
+    const pr=el('rect',{x:sg.x-8,y:py,width:16,height:16,rx:2,fill:'#080f14',stroke:'#1e3848','stroke-width':1,visibility:'hidden','pointer-events':'none'});
+    const pt=tx('9',{x:sg.x,y:py+12,fill:'#ffcc00','font-family':'Share Tech Mono,monospace','font-size':'11','text-anchor':'middle','font-weight':'bold',visibility:'hidden','pointer-events':'none'});
+    g.appendChild(pr);g.appendChild(pt);panel9={r:pr,t:pt};
+    gSN.appendChild(tx(sg.l,{x:sg.x,y:hy-4,class:'slb','pointer-events':'none','data-dir':sg.d}));
+    const da=sg.d==='R'?'→':'←',dc=sg.d==='R'?'#ff6666':'#66aaff';
+    gSN.appendChild(tx(da,{x:sg.x,y:hy-12,fill:dc,'font-family':'Share Tech Mono,monospace','font-size':'10','text-anchor':'middle','font-weight':'bold','pointer-events':'none','data-dir':sg.d}));
+    g.appendChild(el('rect',{x:sg.x-12,y:hy-16,width:24,height:70,fill:'transparent',class:'sh'}));
+  } else {
+    const hy=sg.y-56;
+    g.appendChild(el('line',{x1:sg.x,y1:hy+44,x2:sg.x,y2:sg.y,stroke:'#1a3028','stroke-width':2,'pointer-events':'none'}));
+    g.appendChild(el('rect',{x:sg.x-6,y:hy,width:12,height:44,rx:2,fill:'#080f14',stroke:'#1e3848','stroke-width':1.5,'pointer-events':'none'}));
+    for(const ly of [hy+6,hy+16,hy+27,hy+38])lenses.push(el('circle',{cx:sg.x,cy:ly,r:3.8,fill:OFF,stroke:'#0d2030','stroke-width':.5,'pointer-events':'none'}));
+    gSN.appendChild(tx(sg.l,{x:sg.x,y:hy-4,class:'slb','pointer-events':'none','data-dir':sg.d}));
+    const da=sg.d==='R'?'→':'←',dc=sg.d==='R'?'#ff6666':'#66aaff';
+    gSN.appendChild(tx(da,{x:sg.x,y:hy-12,fill:dc,'font-family':'Share Tech Mono,monospace','font-size':'10','text-anchor':'middle','font-weight':'bold','pointer-events':'none','data-dir':sg.d}));
+    g.appendChild(el('rect',{x:sg.x-12,y:hy-16,width:24,height:76,fill:'transparent',class:'sh'}));
+  }
+  lenses.forEach(l=>g.appendChild(l));gS.appendChild(g);
+  S.sig[id]={asp:'STOP',ls:lenses,isR,isA,p9:panel9};
+  updAsp(id,'STOP');
+}
+function gn(c){return c==='#ff2b2b'?'red':c==='#00e87a'?'green':c==='#ffcc00'?'yellow':'white';}
+function updAsp(id,a){
+  const s=S.sig[id];if(!s)return;s.asp=a;
+  let ld;if(s.isR)ld=retL(a);else if(s.isA)ld=avzL(a);else ld=stdL(a);
+  s.ls.forEach((c,i)=>{const{c:col,g:gw}=ld[i]||{c:OFF,g:false};c.setAttribute('fill',col);if(gw&&col!==OFF){c.setAttribute('filter',`url(#glow-${gn(col)})`);c.setAttribute('stroke',col);}else{c.removeAttribute('filter');c.setAttribute('stroke','#0d2030');}});
+  // Panel "9" for preanuncio
+  if(s.p9){const vis=a==='PREC_PRE'?'visible':'hidden';s.p9.r.setAttribute('visibility',vis);s.p9.t.setAttribute('visibility',vis);}
+  syncRet(id);
+}
+function addFilters(){const d=document.querySelector('#diagram defs');for(const[n,c]of[['red','#ff2b2b'],['green','#00e87a'],['yellow','#ffcc00'],['white','#ddeeff']]){const f=el('filter',{id:'glow-'+n,x:'-80%',y:'-80%',width:'260%',height:'260%'});f.appendChild(el('feGaussianBlur',{stdDeviation:'2.5',result:'blur'}));const m=el('feMerge');m.appendChild(el('feMergeNode',{in:'blur'}));m.appendChild(el('feMergeNode',{in:'SourceGraphic'}));f.appendChild(m);d.appendChild(f);}}
+
+// ═══ RETROCESO SYNC ═══
+function syncRet(cid){
+  for(const[rId,rSig]of Object.entries(SIGS)){
+    if(rSig.t!=='ret'||rSig.le!==cid)continue;
+    const es=S.sig[cid];if(!es)continue;
+    if(es.asp==='STOP'){updRetD(rId,'STOP');}
+    else{const ar=Object.values(S.ar).find(r=>r.f===cid);
+      // Desviada = alguna aguja en posición invertida (R) en el itinerario
+      const isDesv=ar&&Object.values(ar.sw).some(v=>v==='R');
+      updRetD(rId,isDesv?'WHITE_HORIZ':'WHITE_VERT');}
+  }
+}
+function updRetD(id,a){const s=S.sig[id];if(!s)return;s.asp=a;const ld=retL(a);s.ls.forEach((c,i)=>{const{c:col,g:gw}=ld[i]||{c:OFF,g:false};c.setAttribute('fill',col);if(gw&&col!==OFF){c.setAttribute('filter',`url(#glow-${gn(col)})`);c.setAttribute('stroke',col);}else{c.removeAttribute('filter');c.setAttribute('stroke','#0d2030');}});}
+
+// ═══ AVANZADA SYNC (anuncio de parada) ═══
+// Maps avanzada → {entry signal, approach CV segment}
+const AVZ_MAP={};
+STNS.forEach(p=>{
+  AVZ_MAP[p+"E'2"]={ent:p+'E2',cv:p+'CVE2'};
+  AVZ_MAP[p+"E'1"]={ent:p+'E1',cv:p+'CVE1'};
+  if(DV2R[p])AVZ_MAP[p+"E'3"]={ent:p+'E3',cv:p+'CVE3'};
+  if(DV2L[p])AVZ_MAP[p+"E'4"]={ent:p+'E4',cv:p+'CVE4'};
+});
+function syncAvz(){
+  for(const[avzId,map]of Object.entries(AVZ_MAP)){
+    const avzS=S.sig[avzId],entS=S.sig[map.ent];
+    if(!avzS||!entS)continue;
+    const hasRoute=Object.values(S.ar).some(r=>!r.ex&&r.f===map.ent);
+    if(hasRoute)continue;
+    if(entS.asp==='STOP'){
+      const cvSeg=S.seg[map.cv];
+      const cvOcc=cvSeg&&cvSeg.occ;
+      const newAsp=cvOcc?'STOP':'AN_PAR';
+      if(avzS.asp!==newAsp)updAsp(avzId,newAsp);
+    }
+  }
+}
+
+// ═══ SEGMENTS/BLOCKS ═══
+function updSeg(id){const s=S.seg[id];if(!s||!s.el)return;if(SEGS[id]&&SEGS[id].isBlk){if(id.startsWith('BLKV2_')){const bn=parseInt(id.replace('BLKV2_',''));updBlkD(bn,'V2');}else{const bn=parseInt(id.replace('BLK',''));if(bn>=1&&bn<=31)updBlkD(bn,'V1');}return;}s.el.setAttribute('class',s.occ?'to':s.res?'tr':'tl');syncAvz();}
+function updBlkD(n,via){
+  // via='V1' or 'V2' or undefined (update both)
+  const cm={libre:'bl',pedido:'bpd',concedido:'bc',ocupado:'bo'};
+  if(!via||via==='V1'){
+    const bs=S.blk[n];
+    const tk=document.getElementById('bt'+n);if(tk)tk.setAttribute('class',cm[bs.s]);
+  }
+  if((!via||via==='V2')&&n<=26){
+    const bv2=S.blkV2[n];
+    const tv2=document.getElementById('btv2_'+n);if(tv2&&bv2)tv2.setAttribute('class',cm[bv2.s]);
+  }
+  updBlkUI(n);updTri(n);
+}
+function updBlkUI(n){
+  // V1 row
+  const bs=S.blk[n],d1=document.getElementById('bd_'+n+'v1');
+  if(d1)d1.className='bd '+bs.s;
+  const l1=document.getElementById('bl_'+n+'v1');
+  if(l1){l1.textContent={libre:'LIBRE',pedido:'PEDIDO',concedido:'CONCED.',ocupado:'OCUPADO'}[bs.s];l1.style.color={libre:'#c8a030',pedido:'#ffd54f',concedido:'#00e87a',ocupado:'#ff3e3e'}[bs.s];}
+  const dr1=document.getElementById('bdr_'+n+'v1');if(dr1)dr1.textContent=bs.d||'—';
+  ['rAB','rBA','gr','cl'].forEach(b=>{const e=document.getElementById('b'+n+'v1'+b);if(e)e.disabled=b==='rAB'||b==='rBA'?bs.s!=='libre':b==='gr'?bs.s!=='pedido':bs.s==='libre';});
+  // V2 row
+  if(n<=26&&S.blkV2[n]){
+    const bv=S.blkV2[n],d2=document.getElementById('bd_'+n+'v2');
+    if(d2)d2.className='bd '+bv.s;
+    const l2=document.getElementById('bl_'+n+'v2');
+    if(l2){l2.textContent={libre:'LIBRE',pedido:'PEDIDO',concedido:'CONCED.',ocupado:'OCUPADO'}[bv.s];l2.style.color={libre:'#c8a030',pedido:'#ffd54f',concedido:'#00e87a',ocupado:'#ff3e3e'}[bv.s];}
+    const dr2=document.getElementById('bdr_'+n+'v2');if(dr2)dr2.textContent=bv.d||'—';
+    ['rAB','rBA','gr','cl'].forEach(b=>{const e=document.getElementById('b'+n+'v2'+b);if(e)e.disabled=b==='rAB'||b==='rBA'?bv.s!=='libre':b==='gr'?bv.s!=='pedido':bv.s==='libre';});
+  }
+}
+function buildBlkUI(){
+  const c=document.getElementById('blkBody');c.innerHTML='';
+  const nBlk=STNS.length-1;
+  for(let n=1;n<=nBlk;n++){
+    const sL=STN_LBL[STNS[n-1]]||('Est.'+n);
+    const sR=STN_LBL[STNS[n]]||('Est.'+(n+1));
+    const isDbl=n<=26&&S.blkV2[n];
+    const d=document.createElement('div');d.className='bp';
+    let h=`<div style="font-size:7px;color:#3a6a85;margin-bottom:3px">Cantón ${n} · <b>${sL} ↔ ${sR}</b></div>`;
+    h+=`<div class="bs-r"><span style="font-size:7px;color:#6ad0e0;min-width:18px">V1</span><div class="bd libre" id="bd_${n}v1"></div><b id="bl_${n}v1" style="font-size:8px">LIBRE</b><span style="color:var(--mut);font-size:7px;margin-left:auto" id="bdr_${n}v1">—</span></div>`;
+    h+=`<div class="br" style="margin-top:2px"><button style="flex:1;font-size:7px" onclick="reqBlk(${n},'AB','V1')" id="b${n}v1rAB">→</button><button style="flex:1;font-size:7px" onclick="reqBlk(${n},'BA','V1')" id="b${n}v1rBA">←</button><button style="flex:1;font-size:7px" onclick="grantBlk(${n},'V1')" id="b${n}v1gr" disabled>C</button><button style="flex:1;font-size:7px" onclick="clearBlk(${n},'V1')" id="b${n}v1cl" disabled>L</button></div>`;
+    if(isDbl){
+      h+=`<div class="bs-r" style="margin-top:3px"><span style="font-size:7px;color:#e0a040;min-width:18px">V2</span><div class="bd libre" id="bd_${n}v2"></div><b id="bl_${n}v2" style="font-size:8px">LIBRE</b><span style="color:var(--mut);font-size:7px;margin-left:auto" id="bdr_${n}v2">—</span></div>`;
+      h+=`<div class="br" style="margin-top:2px"><button style="flex:1;font-size:7px" onclick="reqBlk(${n},'AB','V2')" id="b${n}v2rAB">→</button><button style="flex:1;font-size:7px" onclick="reqBlk(${n},'BA','V2')" id="b${n}v2rBA">←</button><button style="flex:1;font-size:7px" onclick="grantBlk(${n},'V2')" id="b${n}v2gr" disabled>C</button><button style="flex:1;font-size:7px" onclick="clearBlk(${n},'V2')" id="b${n}v2cl" disabled>L</button></div>`;
+    }
+    d.innerHTML=h;c.appendChild(d);
+  }
+}
+function getBlkState(n,via){return via==='V2'&&n<=26&&S.blkV2[n]?S.blkV2[n]:S.blk[n];}
+function reqBlk(n,d,via){const b=getBlkState(n,via||'V1');if(b.s!=='libre'){log('⚠ Cantón '+n+' '+via+' no libre','er');return;}b.s='pedido';b.d=d==='AB'?'→':'←';log('📡 Bloqueo '+n+' '+(via||'V1')+' PEDIDO '+b.d,'i');updBlkD(n,via);}
+function grantBlk(n,via){const b=getBlkState(n,via||'V1');if(b.s!=='pedido')return;b.s='concedido';log('✅ Bloqueo '+n+' '+(via||'V1')+' CONCEDIDO','ok');updBlkD(n,via);}
+function clearBlk(n,via){
+  const b=getBlkState(n,via||'V1');b.s='libre';b.d=null;
+  if(via==='V2'){const sk='BLKV2_'+n;if(S.seg[sk])S.seg[sk].occ=false;}
+  else{const sk='BLK'+n;if(S.seg[sk])S.seg[sk].occ=false;}
+  log('🔓 Cantón '+n+' '+(via||'V1')+' LIBRE','ok');updBlkD(n,via);
+}
+
+// Block for station exit direction
+function blkForExit(p,dir){
+  const stIdx=STNS.indexOf(p);
+  if(dir==='R')return stIdx<STNS.length-1?stIdx+1:null;
+  return stIdx>0?stIdx:null;
+}
+function autoBlk(p,dir,blkVia){
+  const bn=blkForExit(p,dir);if(!bn)return true;
+  const via=blkVia||'V1';
+  const bs=getBlkState(bn,via),needed=dir==='R'?'→':'←';
+  if(bs.s==='libre'){bs.s='concedido';bs.d=needed;log('🔒 Auto-bloqueo '+bn+' '+via+' '+needed,'ok');updBlkD(bn,via);return true;}
+  if((bs.s==='concedido'||bs.s==='ocupado')&&bs.d===needed)return true;
+  log('❌ Cantón '+bn+' '+via+' no disponible ('+bs.d+')','er');return false;
+}
+
+// ═══ INTERLOCKING ═══
+function openRoute(rk){
+  if(REC.active)REC.events.push({t:S.tick-REC.startTick,a:'route',p:rk});
+  const r=RT[rk];if(!r){log('❌ '+rk,'er');return false;}
+  // Para rutas de entrada, el primer segmento (CVE) puede estar ocupado por un tren esperando
+  for(let si=0;si<r.sg.length;si++){
+    const s=r.sg[si];const sg=S.seg[s];
+    if(sg&&sg.occ){
+      if(si===0&&!r.ex){/* CVE ocupado por tren esperando: permitido */}
+      else{log('❌ '+s+' OCC','er');return false;}
+    }
+  }
+  for(const[sw,rp]of Object.entries(r.sw)){const s=S.sw[sw];if(!s){log('❌ '+sw+' no existe','er');return false;}if(s.lk&&s.pos!==rp){log('❌ '+sw+' encl.','er');return false;}}
+  for(const[ak,ar]of Object.entries(S.ar)){if(r.sg.some(s=>(ar.sg||[]).includes(s))){log('⛔ Conflicto '+ak,'er');return false;}}
+  if(r.ex){const p=rk.charAt(0);if(!autoBlk(p,r.dir,r.blkV||'V1'))return false;}
+  for(const[sw,rp]of Object.entries(r.sw)){const s=S.sw[sw];s.pos=rp;s.lk=true;updSw(sw);}
+  for(const s of r.sg){const sg=S.seg[s];if(sg){sg.res=true;updSeg(s);}}
+  S.ar[rk]={...r,key:rk};
+  if(r.ex){updAsp(r.f,'GO');rebuildWaiting(rk,r);}
+  else{
+    const dSig=getDSig(r);const dA=dSig?(S.sig[dSig]?.asp||'STOP'):'STOP';
+    const isDesv=Object.values(r.sw).some(v=>v==='R');
+    let entAsp,avzAsp;
+    if(isDesv){entAsp='PREC';avzAsp='PREC_ADV';}
+    else{entAsp=dA==='STOP'?'PREC':'GO';avzAsp=dA==='STOP'?'PREC_PRE':'GO';}
+    updAsp(r.f,entAsp);
+    const avz=r.f.replace(/E([1234])$/,"E'$1");
+    if(S.sig[avz])updAsp(avz,avzAsp);
+    // Reconstruir path de trenes esperando en el CVE de esta ruta
+    rebuildWaiting(rk,r);
+  }
+  log('✅ '+rk,'ok');undoPush(rk);
+  refreshCascade();
+  updUI();return true;
+}
+// After an exit route opens (exit signal→GO), re-check entry routes whose destination just changed
+// Rebuild path for trains that will pass through this station when a route opens
+function rebuildWaiting(rk,r){
+  // Rebuild path only for trains near THIS specific signal, on the SAME track (Y)
+  const sigDef=SIGS[r.f];if(!sigDef)return;
+  const stn=rk.charAt(0);
+  const X=XS[stn];if(!X)return;
+  for(const tr of S.trains){
+    if(tr.done)continue;
+    const idx=Math.min(tr.pi,tr.pts.length-2);
+    const cx=tr.pts[idx].x+(tr.pts[idx+1].x-tr.pts[idx].x)*tr.t;
+    const cy=tr.pts[idx].y+(tr.pts[idx+1].y-tr.pts[idx].y)*tr.t;
+    // Must be on same Y track as signal (±30px) — prevents V1/V2/V3 cross-contamination
+    if(Math.abs(cy-sigDef.y)>30)continue;
+    // Must be near signal or approaching (not past the station)
+    const mR=(tr.dir==='AB');
+    const pastStation=mR?(cx>X.stationEnd+20):(cx<X.stationStart-20);
+    if(pastStation)continue;
+    // Must be within reasonable range (block before + CVE + throat)
+    const tooFar=mR?(cx<X.leftEdge-300):(cx>X.rightEdge+300);
+    if(tooFar)continue;
+    // Must NOT be inside a station CV (already committed to a track)
+    if(tr.cs&&/CV[123]$/.test(tr.cs))continue;
+    // Reconstruir path con agujas actualizadas
+    const newFull=buildPath(tr.dir);
+    if(newFull.length<2)continue;
+    let bestI=0,bestD=Infinity;
+    for(let i=0;i<newFull.length;i++){
+      const d=Math.hypot(newFull[i].x-cx,newFull[i].y-cy);
+      if(d<bestD){bestD=d;bestI=i;}
+    }
+    const bp=newFull[bestI];
+    const behind=mR?(bp.x<cx-10):(bp.x>cx+10);
+    if(behind&&bestI<newFull.length-1)bestI++;
+    const newPts=[{x:cx,y:cy},...newFull.slice(bestI)];
+    const clean=[newPts[0]];
+    for(let i=1;i<newPts.length;i++){
+      if(Math.hypot(newPts[i].x-clean[clean.length-1].x,newPts[i].y-clean[clean.length-1].y)>3)
+        clean.push(newPts[i]);
+    }
+    if(clean.length<2)continue;
+    tr.pts=clean;tr.pi=0;tr.t=0;
+    if(tr.pathLine)tr.pathLine.setAttribute('points',clean.map(p=>p.x+','+p.y).join(' '));
+    log('🔄 '+tr.id+' path recalculado','i');
+  }
+}
+function refreshCascade(){
+  for(const[rk,r]of Object.entries(S.ar)){
+    if(r.ex)continue;
+    const dSig=getDSig(r);
+    const dA=dSig?(S.sig[dSig]?.asp||'STOP'):'STOP';
+    const isDesv=Object.values(r.sw).some(v=>v==='R');
+    let wantEnt,wantAvz;
+    if(isDesv){
+      wantEnt='PREC';wantAvz='PREC_ADV';
+    }else{
+      wantEnt=(dA==='GO'||dA==='PREC'||dA==='PREC_ADV')?'GO':'PREC';
+      wantAvz=wantEnt==='GO'?'GO':'PREC_PRE';
+    }
+    if(S.sig[r.f]&&S.sig[r.f].asp!==wantEnt)updAsp(r.f,wantEnt);
+    const avz=r.f.replace(/E([1234])$/,"E'$1");
+    if(S.sig[avz]&&S.sig[avz].asp!==wantAvz)updAsp(avz,wantAvz);
+  }
+}
+function getDSig(r){const p=r.f.charAt(0),isL=r.f.includes('E2')||r.f.includes('E4'),v=r.via.replace('V','');return isL?p+'S2/'+v:p+'S1/'+v;}
+function cancelRoute(rk){
+  const r=S.ar[rk];if(!r)return;
+  if(r.sg.some(s=>S.seg[s]&&S.seg[s].occ))return;
+  for(const s of r.sg){const sg=S.seg[s];if(sg){sg.res=false;updSeg(s);}}
+  for(const sw of Object.keys(r.sw)){const s=S.sw[sw];if(s){s.lk=false;updSw(sw);}}
+  updAsp(r.f,'STOP');
+  if(!r.ex){const avz=r.f.replace(/E([1234])$/,"E'$1");if(S.sig[avz])updAsp(avz,'STOP');}
+  delete S.ar[rk];log('🔕 '+rk,'i');syncAvz();updUI();
+}
+function qR(p,e,cv){const k=p+e+'→'+cv;if(!S.ar[k])openRoute(k);}
+// Detect which station via has active route (segment reservation)
+function activeVia(p){
+  if(S.seg[p+'CV2']&&S.seg[p+'CV2'].res)return '2';
+  if(S.seg[p+'CV3']&&S.seg[p+'CV3'].res)return '3';
+  return '1';
+}
+function qE(p,side){
+  const v=activeVia(p);
+  if(side==='S2'){openRoute(p+'S2/'+v+'→out');}
+  else if(side==='S1'){openRoute(p+'S1/'+v+'→out');}
+  else if(side==='S2V2'){
+    if(v==='2')openRoute(p+'S2/2→outV2');
+    else openRoute(p+'S2/2→out'); // V2→V1 si no hay outV2 para esa vía
+  }
+  else if(side==='S1V2'){
+    if(v==='2')openRoute(p+'S1/2→outV2');
+    else openRoute(p+'S1/2→out');
+  }
+}
+
+// ═══ SIGNAL-TO-SIGNAL ROUTING (universal) ═══
+let pendRing=null;
+function clearPend(){if(pendRing){pendRing.remove();pendRing=null;}S.pending=null;}
+function sigToSig(id1,id2){
+ const s1=SIGS[id1],s2=SIGS[id2];
+ if(!s1||!s2)return false;
+
+ // ── MISMA ESTACIÓN: Entrada→Salida abre ruta de entrada ──
+ if(s1.st===s2.st){
+  let entry,exit;
+  if(s1.t==='entry'&&s2.t==='exit'){entry=id1;exit=id2;}
+  else if(s2.t==='entry'&&s1.t==='exit'){entry=id2;exit=id1;}
+  else return false;
+  const eSig=SIGS[exit],v=(eSig.l.match(/\/(\d)/)||[])[1];
+  if(!v)return false;
+  const p=s1.st,rk=p+SIGS[entry].l+'→CV'+v;
+  return openRoute(rk);
+ }
+
+ // ── ESTACIONES DIFERENTES — enrutamiento universal ──
+ const i1=STNS.indexOf(s1.st),i2=STNS.indexOf(s2.st);
+ if(i1<0||i2<0)return false;
+ const dir=(i2>i1)?'R':'L';
+ const dirCh=dir==='R'?'R':'L';
+
+ // Ambas señales deben mirar en el sentido de marcha
+ if(s1.d!==dirCh||s2.d!==dirCh){log('❌ Señales en sentido contrario','er');return false;}
+
+ // Construir camino de estaciones
+ const step=(dir==='R')?1:-1;
+ const path=[];for(let i=i1;i!==i2+step;i+=step)path.push(STNS[i]);
+
+ const opened=[];
+ const tryOpen=(key)=>{
+  if(!RT[key]){log('❌ No ruta: '+key,'er');return false;}
+  if(S.ar[key]){opened.push(key);return true;}
+  const ok=openRoute(key);if(ok)opened.push(key);return ok;
+ };
+ const rollback=()=>{for(let i=opened.length-1;i>=0;i--)if(S.ar[opened[i]])cancelRoute(opened[i]);};
+
+ // Determinar vía destino (si sig2 es señal de salida, usar su vía)
+ let destVia=1;
+ if(s2.t==='exit')destVia=parseInt((s2.via||'V1').replace('V',''));
+ // Determinar vía origen (si sig1 es señal de salida, usar su vía)
+ let srcVia=1;
+ if(s1.t==='exit')srcVia=parseInt((s1.via||'V1').replace('V',''));
+
+ // Calcular vía de bloque entre estaciones (V2 solo si ambos lados soportan y queremos V2)
+ const blkHasV2=(a,b)=>dir==='R'?(DV2R[a]&&DV2L[b]):(DV2L[a]&&DV2R[b]);
+
+ // Track por bloque: V2 si el destino/origen es V2 y el bloque lo soporta
+ const wantV2=(destVia===2||srcVia===2);
+ const blkTrack=[];
+ for(let k=0;k<path.length-1;k++){
+  blkTrack[k]=(wantV2&&blkHasV2(path[k],path[k+1]))?2:1;
+ }
+
+ // Track por estación (CV a usar en cada estación)
+ // Regla: si el bloque entrante o saliente es V2, la estación DEBE usar V2
+ // (porque solo E3/E4 entran desde V2 → CV2, y solo S/2→outV2 sale a V2)
+ const stTrack=[];
+ for(let k=0;k<path.length;k++){
+  const inV2=(k>0&&blkTrack[k-1]===2);
+  const outV2=(k<path.length-1&&blkTrack[k]===2);
+  if(k===0&&s1.t==='entry'&&(s1.l==='E3'||s1.l==='E4')){
+    stTrack[k]=2; // E3/E4 solo pueden ir a V2
+  } else if(inV2||outV2){
+    stTrack[k]=2;
+  } else if(k===0){
+    stTrack[k]=(s1.t==='exit')?srcVia:destVia;
+  } else if(k===path.length-1){
+    stTrack[k]=destVia;
+  } else {
+    stTrack[k]=1;
+  }
+ }
+
+ for(let k=0;k<path.length;k++){
+  const p=path[k],isFirst=(k===0),isLast=(k===path.length-1);
+
+  // ── RUTA DE ENTRADA ──
+  if(isFirst&&s1.t==='exit'){
+   // sig1 es salida → no necesitamos entrada en la primera estación
+  }else{
+   let entLabel;
+   if(isFirst){
+    entLabel=s1.l; // señal de entrada clickeada
+   }else{
+    // Determinar señal de entrada según vía del bloque anterior
+    const incTrack=blkTrack[k-1];
+    if(dir==='R')entLabel=(incTrack===2&&DV2L[p])?'E4':'E2';
+    else entLabel=(incTrack===2&&DV2R[p])?'E3':'E1';
+   }
+   const cv=stTrack[k];
+   const entKey=p+entLabel+'→CV'+cv;
+   if(!tryOpen(entKey)){rollback();return false;}
+  }
+
+  // ── RUTA DE SALIDA ──
+  if(isLast&&s2.t==='entry'){
+   // sig2 es entrada → no necesitamos salida en la última estación
+  }else{
+   let exLabel,exKey;
+   if(isLast&&s2.t==='exit'){
+    exLabel=s2.l;
+   }else if(isFirst&&s1.t==='exit'){
+    exLabel=s1.l;
+   }else{
+    // Salida intermedia: señal según la vía en la que está el tren
+    exLabel=(dir==='R'?'S2/':'S1/')+stTrack[k];
+   }
+   // Construir clave de ruta de salida
+   exKey=p+exLabel+'→out';
+   // Si el bloque siguiente es V2 y estamos en V2, usar outV2
+   if(k<path.length-1){
+    const bTrack=blkTrack[k];
+    if(bTrack===2&&stTrack[k]===2){
+     const v2Key=p+exLabel+'→outV2';
+     if(RT[v2Key])exKey=v2Key;
+    }
+   }
+   if(isLast&&s2.t==='exit'){
+    const idx=STNS.indexOf(p);
+    const nxtIdx=(dir==='R')?idx+1:idx-1;
+    const nxt=(nxtIdx>=0&&nxtIdx<STNS.length)?STNS[nxtIdx]:null;
+    if(destVia===2&&nxt&&blkHasV2(p,nxt)){
+     const v2Key=p+exLabel+'→outV2';
+     if(RT[v2Key])exKey=v2Key;
+    }
+   }
+   if(!tryOpen(exKey)){rollback();return false;}
+  }
+ }
+
+ log('✅ Itinerario '+s1.l+'(E'+(i1+1)+') → '+s2.l+'(E'+(i2+1)+')','ok');
+ // Señal DESTINO siempre en parada — el tren debe detenerse al llegar
+ if(S.sig[id2]&&S.sig[id2].asp!=='STOP'){
+   updAsp(id2,'STOP');
+ }
+ // Avanzada del destino: AN_PAR (anuncia parada), NO STOP
+ // Solo pasa a STOP cuando un tren ocupa el CVE
+ const avz2=id2.replace(/E([1234])$/,"E'$1");
+ if(S.sig[avz2]&&S.sig[avz2].asp!=='AN_PAR')updAsp(avz2,'AN_PAR');
+ return true;
+}
+
+// ═══ INTERACTION ═══
+let selRing=null;
+function clearSel(){if(selRing){selRing.remove();selRing=null;}}
+function onSig(id){
+  const sg=SIGS[id];
+  if(S.mode==='auto'){
+    if(S.pending){
+      if(S.pending===id){clearPend();log('⊘ Cancelado','i');return;} // cancel if same
+      const ok=sigToSig(S.pending,id);
+      clearPend();
+      if(!ok)log('❌ Ruta no válida','er');
+      return;
+    }
+    // Only entry and exit signals can start routes
+    if(sg.t!=='entry'&&sg.t!=='exit')return;
+    S.pending=id;
+    pendRing=el('rect',{x:sg.x-14,y:sg.y-62,width:28,height:48,rx:3,class:'pend'});
+    gS.appendChild(pendRing);
+    const kind=sg.t==='entry'?'ENTRADA':'SALIDA';
+    log('🔶 '+sg.l+' ('+kind+') → clic destino','i');
+    return;
+  }
+  // Manual mode
+  S.sel=id;clearSel();
+  selRing=el('rect',{x:sg.x-14,y:sg.y-62,width:28,height:48,rx:3,class:'sr'});gS.appendChild(selRing);
+  document.getElementById('sLbl').textContent=sg.l+' (E'+(STNS.indexOf(sg.st)+1)+')';
+  const isR=sg.t==='ret',isA=!!sg.avz;
+  document.getElementById('stdB').style.display=(!isR&&!isA)?'flex':'none';
+  document.getElementById('retB').style.display=isR?'block':'none';
+  document.getElementById('avzB').style.display=isA?'flex':'none';
+  if(S.mode!=='manual')setMode('manual');
+}
+function onSw(id){const sw=S.sw[id];if(sw.lk){log('⛔ '+id+' encl.','er');return;}sw.pos=sw.pos==='N'?'R':'N';updSw(id);log(id+'→'+sw.pos,'ok');updUI();}
+function mAsp(a){
+  if(!S.sel)return;const sg=S.sig[S.sel],sd=SIGS[S.sel];
+  if(sg.isR&&!['STOP','REBASE','WHITE_VERT','WHITE_HORIZ'].includes(a))return;
+  if(sg.isA&&!['STOP','AN_PAR','PREC_PRE','PREC_ADV','GO'].includes(a))return;
+  if(a!=='STOP'&&sd.t==='exit'&&sd.rs){for(const[sw,rq]of Object.entries(sd.rs)){const s=S.sw[sw];if(s&&s.pos!==rq){log('❌ '+sw,'er');return;}}}
+  updAsp(S.sel,a);log(sd.l+'→'+a,'ok');
+}
+
+// ═══ SCENARIOS ═══
+function runScn(){const v=parseInt(document.getElementById('scnSel').value);if(v>0)scenario(v);}
+function resetAll(){
+  for(const k of Object.keys(S.ar))cancelRoute(k);
+  for(let i=1;i<=31;i++){if(S.blk[i].s!=='libre')clearBlk(i,'V1');if(i<=26&&S.blkV2[i]&&S.blkV2[i].s!=='libre')clearBlk(i,'V2');}
+  PN.manualOff=false;PN.protected=false;updPN();
+}
+function scenario(n){
+  if(n<=4&&S.trains.length>0){log('⚠ Espera o Reset','er');return;}
+  resetAll();
+  log('━━━ Escenario '+n+' ━━━','i');
+  switch(n){
+    case 1:{
+ for(let i=0;i<STNS.length;i++){
+  const p=STNS[i],prev=STNS[i-1],next=STNS[i+1];
+  const prevDbl=i>0&&DV2R[prev]&&DV2L[p];
+  const nextDbl=next&&DV2R[p]&&DV2L[next];
+  const useV2=prevDbl||nextDbl;
+  if(prevDbl)openRoute(p+'E4→CV2');else openRoute(p+'E2→CV'+(useV2?2:1));
+  if(i<STNS.length-1){if(useV2&&nextDbl)openRoute(p+'S2/2→outV2');else openRoute(p+'S2/'+(useV2?2:1)+'→out');}
+ }
+ log('→ Par directa V2','i');doSpawn('AB');break;}
+    case 2:{
+      for(let i=0;i<STNS.length;i++){const p=STNS[i],np=STNS[i+1];
+        const dblB=DV2R[p]&&np&&DV2L[np];
+        const prevDbl=i>0&&DV2R[STNS[i-1]]&&DV2L[p];
+        if(prevDbl)openRoute(p+'E4→CV2');else openRoute(p+'E2→CV2');
+        if(i<STNS.length-1){if(dblB)openRoute(p+'S2/2→outV2');else openRoute(p+'S2/2→out');}}
+      log('→ E1→E7 desviada','i');doSpawn('AB');break;}
+    case 3:{
+      for(let i=STNS.length-1;i>=0;i--){const p=STNS[i];
+        openRoute(p+'E1→CV1');if(i>0)openRoute(p+'S1/1→out');}
+      log('← Impar directa V1','i');doSpawn('BA');break;}
+  }
+}
+
+// ═══ ESCENARIO 5: Cruce en Est.3 (par + impar) ═══
+// ═══ TRAIN ═══
+function buildPath(dir){
+  // sp: station path. arrY = Y coordinate the train arrives at
+  function sp(X,p,ent,arrY){
+    const pts=[],dR=DV2R[p],dL=DV2L[p];
+    if(ent==='L'){
+      // --- ENTRY FROM LEFT ---
+      if(arrY===Y.V2 && dL){
+        // Arriving on V2 from double-track block
+        const a8=S.sw[p+'A8'];
+        if(a8&&a8.pos==='R'){
+          // V2→V1 crossover at A8
+          pts.push({x:X.leftThroat1b,y:Y.V2},{x:X.leftThroat1,y:Y.V1});
+          // Now on V1 — check A6 for V3
+          const a6=S.sw[p+'A6'];
+          if(a6&&a6.pos==='R'){
+            pts.push({x:X.leftThroat2,y:Y.V1},{x:X.stationStart,y:Y.V3});
+            pts.push({x:X.stationStart,y:Y.V3},{x:X.stationEnd,y:Y.V3},{x:X.rightThroat1,y:Y.V1});
+          } else {
+            pts.push({x:X.stationStart,y:Y.V1},{x:X.stationEnd,y:Y.V1});
+          }
+        } else {
+          // A8=N: stay V2 straight into station
+          pts.push({x:X.stationStart,y:Y.V2},{x:X.stationEnd,y:Y.V2});
+          // Exit from V2
+          const a5=S.sw[p+'A5'];
+          if(dR&&a5&&a5.pos==='N'){
+            pts.push({x:X.rightApproachStart,y:Y.V2},{x:X.rightEdge,y:Y.V2});
+          } else if(dR){
+            pts.push({x:X.rightThroat2b,y:Y.V2},{x:X.rightThroat2,y:Y.V1});
+          } else {
+            pts.push({x:X.rightThroat2,y:Y.V1});
+          }
+        }
+      } else {
+        // Arriving on V1 (normal)
+        const a7=S.sw[p+'A7'],a6=S.sw[p+'A6'];
+        if(a7&&a7.pos==='R'){
+          if(dL){pts.push({x:X.leftThroat1,y:Y.V1},{x:X.leftThroat1b,y:Y.V2});}
+          else{pts.push({x:X.leftThroat1,y:Y.V1},{x:X.stationStart,y:Y.V2});}
+          pts.push({x:X.stationStart,y:Y.V2},{x:X.stationEnd,y:Y.V2});
+          const a5=S.sw[p+'A5'];
+          if(dR&&a5&&a5.pos==='N'){
+            pts.push({x:X.rightApproachStart,y:Y.V2},{x:X.rightEdge,y:Y.V2});
+          } else if(dR){
+            pts.push({x:X.rightThroat2b,y:Y.V2},{x:X.rightThroat2,y:Y.V1});
+          } else {
+            pts.push({x:X.rightThroat2,y:Y.V1});
+          }
+        }
+        else if(a6&&a6.pos==='R'){
+          pts.push({x:X.leftThroat2,y:Y.V1},{x:X.stationStart,y:Y.V3},{x:X.stationEnd,y:Y.V3},{x:X.rightThroat1,y:Y.V1});
+        }
+        else{
+          pts.push({x:X.stationStart,y:Y.V1},{x:X.stationEnd,y:Y.V1});
+        }
+      }
+    } else {
+      // --- ENTRY FROM RIGHT ---
+      if(arrY===Y.V2 && dR){
+        // Arriving on V2 from double-track block (BA direction)
+        const a5=S.sw[p+'A5'];
+        if(a5&&a5.pos==='R'){
+          // V2→V1 crossover at A5
+          pts.push({x:X.rightThroat2b,y:Y.V2},{x:X.rightThroat2,y:Y.V1});
+          // Now on V1 — check A3 for V3
+          const a3=S.sw[p+'A3'];
+          if(a3&&a3.pos==='R'){
+            pts.push({x:X.rightThroat1,y:Y.V1},{x:X.stationEnd,y:Y.V3},{x:X.stationStart,y:Y.V3},{x:X.leftThroat2,y:Y.V1});
+          } else {
+            pts.push({x:X.stationEnd,y:Y.V1},{x:X.stationStart,y:Y.V1});
+          }
+        } else {
+          // A5=N: stay V2 straight into station
+          pts.push({x:X.stationEnd,y:Y.V2},{x:X.stationStart,y:Y.V2});
+          // Exit from V2
+          const a8=S.sw[p+'A8'];
+          if(dL&&a8&&a8.pos==='N'){
+            pts.push({x:X.leftApproachEnd,y:Y.V2},{x:X.leftEdge,y:Y.V2});
+          } else if(dL){
+            pts.push({x:X.leftThroat1b,y:Y.V2},{x:X.leftThroat1,y:Y.V1});
+          } else {
+            pts.push({x:X.leftThroat1,y:Y.V1});
+          }
+        }
+      } else {
+        // Arriving on V1 (normal)
+        const a1=S.sw[p+'A1'],a3=S.sw[p+'A3'];
+        if(a1&&a1.pos==='R'){
+          if(dR){pts.push({x:X.rightThroat2,y:Y.V1},{x:X.rightThroat2b,y:Y.V2});}
+          else{pts.push({x:X.rightThroat2,y:Y.V1},{x:X.stationEnd,y:Y.V2});}
+          pts.push({x:X.stationEnd,y:Y.V2},{x:X.stationStart,y:Y.V2});
+          const a8=S.sw[p+'A8'];
+          if(dL&&a8&&a8.pos==='N'){
+            pts.push({x:X.leftApproachEnd,y:Y.V2},{x:X.leftEdge,y:Y.V2});
+          } else if(dL){
+            pts.push({x:X.leftThroat1b,y:Y.V2},{x:X.leftThroat1,y:Y.V1});
+          } else {
+            pts.push({x:X.leftThroat1,y:Y.V1});
+          }
+        }
+        else if(a3&&a3.pos==='R'){
+          pts.push({x:X.rightThroat1,y:Y.V1},{x:X.stationEnd,y:Y.V3},{x:X.stationStart,y:Y.V3},{x:X.leftThroat2,y:Y.V1});
+        }
+        else{
+          pts.push({x:X.stationEnd,y:Y.V1},{x:X.stationStart,y:Y.V1});
+        }
+      }
+    }
+    return pts;
+  }
+  const stns=dir==='AB'?[...STNS]:[...STNS].reverse();
+  const ent=dir==='AB'?'L':'R';
+  let pts=[];
+  let arrY=Y.V1; // first station always arrives on V1
+  pts.push({x:XS[stns[0]][dir==='AB'?'leftEdge':'rightEdge']+(dir==='AB'?-20:20),y:Y.V1});
+  for(let i=0;i<stns.length;i++){
+    const p=stns[i],X=XS[p];
+    pts.push(...sp(X,p,ent,arrY));
+    const exitY=pts[pts.length-1].y;
+    if(i<stns.length-1){
+      const np=stns[i+1];
+      // Block Y follows train exit Y if the block supports V2, else V1
+      const isDblBlock=dir==='AB'?(DV2R[p]&&DV2L[np]):(DV2L[p]&&DV2R[np]);
+      let blkY=(exitY===Y.V2 && isDblBlock)?Y.V2:Y.V1;
+      if(dir==='AB'){
+        pts.push({x:X.rightEdge,y:blkY});
+        pts.push({x:XS[np].leftEdge,y:blkY});
+      } else {
+        pts.push({x:X.leftEdge,y:blkY});
+        pts.push({x:XS[np].rightEdge,y:blkY});
+      }
+      arrY=blkY;
+    }
+  }
+  const lastP=stns[stns.length-1],lastX=XS[lastP],lastY=pts[pts.length-1].y;
+  pts.push({x:lastX[dir==='AB'?'rightEdge':'leftEdge']+(dir==='AB'?20:-20),y:lastY});
+  const clean=[pts[0]];for(let i=1;i<pts.length;i++){if(Math.hypot(pts[i].x-clean[clean.length-1].x,pts[i].y-clean[clean.length-1].y)>3)clean.push(pts[i]);}
+  return clean;
+}
+function doSpawn(dir){
+  if(REC.active)REC.events.push({t:S.tick-REC.startTick,a:'spawn',p:dir});
+  let num;if(dir==='AB'){num=21202+tPar*2;tPar++;}else{num=21201+tImpar*2;tImpar++;}
+  const id=String(num),pts=buildPath(dir);if(pts.length<2)return;
+  // Log path via per station
+  const stns=dir==='AB'?[...STNS]:[...STNS].reverse();
+  stns.forEach(p=>{
+    const a7=S.sw[p+'A7'],a6=S.sw[p+'A6'],a1=S.sw[p+'A1'],a3=S.sw[p+'A3'];
+    let via='V1';
+    if(dir==='AB'){if(a7&&a7.pos==='R')via='V2';else if(a6&&a6.pos==='R')via='V3';}
+    else{if(a1&&a1.pos==='R')via='V2';else if(a3&&a3.pos==='R')via='V3';}
+    log('📍 '+p+': '+via+' (A7='+a7?.pos+',A1='+a1?.pos+')','i');
+  });
+  // Draw visible path trace
+  const pathStr=pts.map(p=>p.x+','+p.y).join(' ');
+  const pathLine=el('polyline',{points:pathStr,fill:'none',stroke:'#ff00ff',opacity:'0.35','stroke-width':'2','stroke-dasharray':'4 4','pointer-events':'none'});
+  gTR.appendChild(pathLine);
+  const g=el('g');g.setAttribute('style','cursor:pointer');
+  const tColor=MALLA_COLORS[mallaColorIdx%MALLA_COLORS.length];mallaColorIdx++;
+  const rect=el('rect',{width:54,height:20,rx:4,fill:tColor,stroke:'#000','stroke-width':1.5});
+  g.appendChild(rect);g.appendChild(tx(id,{x:27,y:15,class:'trl'}));
+  g.addEventListener('click',e=>{e.stopPropagation();showTrPop(id,e);});
+  gTR.appendChild(g);
+  S.trains.push({id,pts,spd:1.2+Math.random()*.4,pi:0,t:0,dir,el:g,w:false,sl:0,cs:null,done:false,ps:new Set(),pathLine,color:tColor,mHold:false,stops:false,stopTicks:0,stopTimer:0,stoppedAt:{}});
+  posTr(S.trains[S.trains.length-1]);log('🚆 '+id+' '+(dir==='AB'?'→':'←')+' pts='+pts.length,'ok');updUI();
+}
+function spawnTrain(){doSpawn(document.getElementById('tDir').value);}
+
+// ═══ CONTROL DE TRENES ═══
+let selTrId=null;
+function showTrPop(id,e){
+  selTrId=id;
+  const pop=document.getElementById('trPop');
+  const pane=document.getElementById('ctcPane');
+  const rect=pane.getBoundingClientRect();
+  pop.querySelector('#trPopId').textContent='🚆 '+id;
+  pop.style.display='block';
+  pop.style.left=(e.clientX-rect.left+pane.scrollLeft+10)+'px';
+  pop.style.top=(e.clientY-rect.top+pane.scrollTop-30)+'px';
+}
+document.addEventListener('click',e=>{
+  if(!e.target.closest('#trPop'))document.getElementById('trPop').style.display='none';
+});
+function trCmd(cmd){
+  const tr=S.trains.find(t=>t.id===selTrId&&!t.done);
+  if(!tr){log('❌ Tren no encontrado','er');return;}
+  if(REC.active)REC.events.push({t:S.tick-REC.startTick,a:'trCmd',p:{id:tr.id,cmd}});
+  document.getElementById('trPop').style.display='none';
+  switch(cmd){
+    case 'stop':
+      tr.mHold=true;
+      log('⏹ '+tr.id+' detenido manualmente','i');
+      break;
+    case 'go':
+      tr.mHold=false;
+      log('▶ '+tr.id+' reanudado','ok');
+      break;
+    case 'rev':
+      reverseTrain(tr);
+      break;
+  }
+  updUI();
+}
+function reverseTrain(tr){
+  const idx=Math.min(tr.pi,tr.pts.length-2);
+  const cx=tr.pts[idx].x+(tr.pts[idx+1].x-tr.pts[idx].x)*tr.t;
+  const cy=tr.pts[idx].y+(tr.pts[idx+1].y-tr.pts[idx].y)*tr.t;
+  // Invertir dirección
+  const newDir=tr.dir==='AB'?'BA':'AB';
+  // Construir nuevo path en dirección opuesta
+  const newFull=buildPath(newDir);
+  if(newFull.length<2){log('❌ No se puede generar path inverso','er');return;}
+  // Buscar punto más cercano por distancia
+  let bestI=0,bestD=Infinity;
+  for(let i=0;i<newFull.length;i++){
+    const d=Math.hypot(newFull[i].x-cx,newFull[i].y-cy);
+    if(d<bestD){bestD=d;bestI=i;}
+  }
+  const mR=(newDir==='AB');
+  const bp=newFull[bestI];
+  const behind=mR?(bp.x<cx-10):(bp.x>cx+10);
+  if(behind&&bestI<newFull.length-1)bestI++;
+  const newPts=[{x:cx,y:cy},...newFull.slice(bestI)];
+  const clean=[newPts[0]];
+  for(let i=1;i<newPts.length;i++){
+    if(Math.hypot(newPts[i].x-clean[clean.length-1].x,newPts[i].y-clean[clean.length-1].y)>3)
+      clean.push(newPts[i]);
+  }
+  if(clean.length<2){log('❌ Path inverso demasiado corto','er');return;}
+  tr.dir=newDir;tr.pts=clean;tr.pi=0;tr.t=0;tr.ps=new Set();tr.mHold=false;tr.w=false;
+  if(tr.pathLine)tr.pathLine.setAttribute('points',clean.map(p=>p.x+','+p.y).join(' '));
+  log('↩ '+tr.id+' retrocede ('+newDir+')','ok');
+}
+function posTr(tr){const i=Math.min(tr.pi,tr.pts.length-2),p=tr.pts[i],q=tr.pts[i+1];if(!p||!q)return;tr.el.setAttribute('transform',`translate(${p.x+(q.x-p.x)*tr.t-27},${p.y+(q.y-p.y)*tr.t-10})`);}
+function detSeg(tr){const i=Math.min(tr.pi,tr.pts.length-2),p=tr.pts[i],q=tr.pts[i+1];if(!p)return null;const mx=p.x+(q.x-p.x)*tr.t,my=p.y+(q.y-p.y)*tr.t;let best=null,blkF=null;for(const[id,sg]of Object.entries(SEGS)){if(Math.abs(my-sg.y)<30&&mx>=sg.x1-20&&mx<=sg.x2+20){if(sg.isBlk){if(!blkF)blkF=id;}else{best=id;}}}return best||blkF;}
+function chkAhead(tr){
+  const i=Math.min(tr.pi,tr.pts.length-2),p=tr.pts[i],q=tr.pts[i+1];if(!p||!q)return null;
+  const cx=p.x+(q.x-p.x)*tr.t,cy=p.y+(q.y-p.y)*tr.t,mR=q.x>p.x;
+  for(const[id,sg]of Object.entries(SIGS)){
+    const ss=S.sig[id];if(!ss||ss.isR)continue; // skip retroceso only
+    if(ss.asp==='GO'||ss.asp==='PREC'||ss.asp==='PREC_ADV'||ss.asp==='PREC_PRE'||ss.asp==='AN_PAR')continue;
+    if(mR?sg.d!=='R':sg.d!=='L')continue;
+    const xOk=mR?(sg.x>cx&&sg.x<cx+55):(sg.x<cx&&sg.x>cx-55);
+    if(xOk&&Math.abs(sg.y-cy)<38)return ss.asp;
+  }
+  return null;
+}
+function shortCircuit(tr,cx,cy){
+  const mR=tr.dir==='AB';
+  for(const[id,ss]of Object.entries(S.sig)){
+    if(tr.ps.has(id))continue;
+    const sg=SIGS[id];if(!sg)continue;
+    if(mR?sg.d!=='R':sg.d!=='L')continue;
+    if(Math.abs(sg.y-cy)>50)continue;
+    // Circuito de vía 50px detrás de la señal
+    const passed=mR?(sg.x<cx-50):(sg.x>cx+50);
+    if(passed){
+      tr.ps.add(id);
+      // Avanzadas: cerrar con delay extra para que el tren pase
+      // Retroceso: no cerrar, gestionadas por syncRet
+      if(!ss.isR){
+        if(!tr.delayClose)tr.delayClose=[];
+        tr.delayClose.push({id,ticks:sg.avz?8:3});
+      }
+      // ── Liberar bloqueo al pasar señal de retroceso ──
+      if(sg.t==='ret'){
+        const stn=sg.st, stIdx=STNS.indexOf(stn);
+        const isV2=(sg.y===Y.V2);
+        const blkNum=mR?stIdx:stIdx+1;
+        if(blkNum>=1&&blkNum<=6){
+          const blkVia=(isV2&&blkNum>=3)?'V2':'V1';
+          const bs=getBlkState(blkNum,blkVia);
+          if(bs&&(bs.s==='ocupado'||bs.s==='concedido')){
+            bs.s='libre';bs.d=null;
+            log('🔓 '+tr.id+' cantón '+blkNum+' '+blkVia+' libre','ok');
+            updBlkD(blkNum,blkVia);
+          }
+        }
+        // Cancelar ruta de entrada de la estación anterior (ya recorrida, si no hay otro tren)
+        const prevStn=mR?STNS[stIdx-1]:STNS[stIdx+1];
+        if(prevStn){
+          for(const rk of Object.keys(S.ar)){
+            const r=S.ar[rk];if(!r||r.ex)continue;
+            if(!rk.startsWith(prevStn))continue;
+            // Solo cancelar si ningún segmento está ocupado ni reservado por otro tren
+            const anyBusy=r.sg.some(s=>{
+              const sg=S.seg[s];
+              return sg&&(sg.occ||S.trains.some(t=>!t.done&&t!==tr&&t.cs===s));
+            });
+            if(!anyBusy)cancelRoute(rk);
+          }
+        }
+      }
+    }
+  }
+  // Procesar cierres diferidos
+  if(tr.delayClose){
+    for(let i=tr.delayClose.length-1;i>=0;i--){
+      tr.delayClose[i].ticks--;
+      if(tr.delayClose[i].ticks<=0){
+        const sid=tr.delayClose[i].id;
+        const ss=S.sig[sid];
+        if(ss&&ss.asp!=='STOP'){updAsp(sid,'STOP');log('⚡ '+SIGS[sid].l+'→ROJO','i');}
+        tr.delayClose.splice(i,1);
+      }
+    }
+  }
+}
+function tickTrains(){
+  for(const tr of S.trains){
+    if(tr.done)continue;
+    if(tr.pi>=tr.pts.length-1){
+      tr.done=true;tr.el.remove();if(tr.pathLine)tr.pathLine.remove();
+      if(tr.cs){
+        const sg=S.seg[tr.cs];if(sg){sg.occ=false;updSeg(tr.cs);}
+        for(const rk of Object.keys(S.ar)){
+          const r=S.ar[rk];if(!r)continue;
+          if(r.sg.includes(tr.cs)&&!r.sg.some(s=>S.seg[s]&&S.seg[s].occ))cancelRoute(rk);
+        }
+      }
+      updUI();continue;
+    }
+    const ah=chkAhead(tr);if(ah==='STOP'){tr.w=true;}else if(ah==='REBASE'){tr.sl=40;tr.w=false;}else{tr.w=false;}
+    if(tr.mHold)tr.w=true;
+    // Parada comercial: si el tren tiene stops y está en un CV de estación
+    if(tr.stops&&tr.cs&&/^[A-G]CV[123]$/.test(tr.cs)){
+      const stn=tr.cs.charAt(0);
+      if(!tr.stoppedAt){tr.stoppedAt={};} // track which stations already stopped
+      if(!tr.stoppedAt[stn]){
+        tr.stoppedAt[stn]=true;
+        tr.stopTimer=tr.stopTicks||200;
+        log('🚏 '+tr.id+' parada comercial en Est.'+(STNS.indexOf(stn)+1),'i');
+      }
+    }
+    if(tr.stopTimer>0){tr.stopTimer--;tr.w=true;}
+    if(tr.w)continue;
+    const spd=tr.sl>0?tr.spd*.3:tr.spd;if(tr.sl>0)tr.sl--;
+    // 4x más lento entre estaciones (bloques Y zonas de aproximación CVE)
+    const isSlow=tr.cs&&SEGS[tr.cs]&&(SEGS[tr.cs].isBlk||/CVE/.test(tr.cs));
+    const effSpd=spd*trSpeedMult*(isSlow?0.25:1);
+    const p=tr.pts[tr.pi],q=tr.pts[tr.pi+1],d=Math.hypot(q.x-p.x,q.y-p.y);
+    if(d<.01){tr.pi++;continue;}tr.t+=effSpd/d;if(tr.t>=1){tr.t=0;tr.pi++;}
+    posTr(tr);
+    const idx=Math.min(tr.pi,tr.pts.length-2),pc=tr.pts[idx],pn=tr.pts[idx+1];
+    const cx=pc.x+(pn.x-pc.x)*tr.t,cy=pc.y+(pn.y-pc.y)*tr.t;
+    const ns=detSeg(tr);
+    if(ns!==tr.cs){
+      const oldSeg=tr.cs;
+      if(oldSeg&&S.seg[oldSeg]){
+        S.seg[oldSeg].occ=false;updSeg(oldSeg);
+        // Cancelar rutas que incluían este segmento y ya no tienen ninguno ocupado
+        for(const rk of Object.keys(S.ar)){
+          const r=S.ar[rk];if(!r)continue;
+          if(r.sg.includes(oldSeg)&&!r.sg.some(s=>S.seg[s]&&S.seg[s].occ))cancelRoute(rk);
+        }
+      }
+      tr.cs=ns;
+      if(ns&&S.seg[ns]){S.seg[ns].occ=true;updSeg(ns);
+        for(let n=1;n<=31;n++){if(ns==='BLK'+n&&S.blk[n].s==='concedido'){S.blk[n].s='ocupado';updBlkD(n,'V1');}
+          if(ns==='BLKV2_'+n&&S.blkV2[n]&&S.blkV2[n].s==='concedido'){S.blkV2[n].s='ocupado';updBlkD(n,'V2');}
+        }}
+    }
+    shortCircuit(tr,cx,cy);
+  }
+  S.trains=S.trains.filter(t=>!t.done);
+}
+
+// ═══ UI ═══
+function updUI(){
+  const sw=document.getElementById('swSt');sw.innerHTML='';
+  for(const[id,s]of Object.entries(S.sw)){const a=document.createElement('span');a.textContent=id;const b=document.createElement('span');b.textContent=s.pos;b.style.color=s.lk?'#00e87a':'#c8a030';sw.appendChild(a);sw.appendChild(b);}
+  const sg=document.getElementById('sgSt');sg.innerHTML='';
+  for(const[id,s]of Object.entries(S.seg)){if(SEGS[id]&&SEGS[id].isBlk)continue;const a=document.createElement('span');a.textContent=id;const b=document.createElement('span');b.textContent=s.occ?'OCC':s.res?'RES':'LIB';b.style.color=s.occ?'var(--occ)':s.res?'#00e87a':'#c8a030';sg.appendChild(a);sg.appendChild(b);}
+  const rl=document.getElementById('rList');const ks=Object.keys(S.ar);
+  if(!ks.length){rl.innerHTML='—';return;}rl.innerHTML='';
+  for(const k of ks){const d=document.createElement('div');d.className='ri';d.innerHTML=`<span class="rt">${k}</span><button style="margin-left:auto;padding:0 3px;font-size:7px" onclick="cancelRoute('${k}')">✕</button>`;rl.appendChild(d);}
+}
+function log(m,t='ok'){const e=document.getElementById('log'),d=document.createElement('div');d.className='le';d.innerHTML=`<span class="lt">${new Date().toLocaleTimeString('es-ES',{hour12:false})}</span><span class="l${t}">${m}</span>`;e.prepend(d);while(e.children.length>50)e.removeChild(e.lastChild);}
+function tPause(){S.paused=!S.paused;document.getElementById('pBtn').textContent=S.paused?'▶':'⏸';document.getElementById('sBtn').disabled=!S.paused;}
+function stepSim(){if(S.paused){tickTrains();updUI();}}
+function resetSim(){resetSim2();mallaTraces.length=0;mallaColorIdx=0;simTime=0;undoStack.length=0;if(currentView!=='ctc')drawMalla();}
+
+// ═══ PANEL TRENES ACTIVOS ═══
+const STN_LBL={'A':'GUADALAJARA','B':'AZUQUECA','C':'MECO','D':'ALCALÁ UNIV.','E':'ALCALÁ DE H.','F':'LA GARENA','G':'SOTO DEL HENARES','H':'TORREJÓN','I':'S. FERNANDO','J':'COSLADA','K':'VICÁLVARO','L':'STA. EUGENIA','M':'VALLECAS','N':'EL POZO','O':'ASAMBL.-ENTREVÍAS','P':'ATOCHA','Q':'RECOLETOS','R':'NUEVOS MINISTERIOS','S':'CHAMARTÍN','T':'RAMÓN Y CAJAL','U':'MIRASIERRA','V':'PITIS','W':'PINAR DE LAS ROZAS','X':'LAS MATAS','Y':'TORRELODONES','Z':'GALÁPAGAR','a':'VILLALBA','b':'LOS NEGRALES','c':'ALPEDRETE','d':'COLLADO MEDIANO','e':'LOS MOLINOS','f':'CERCEDILLA'};
+function updTrainPanel(){
+  const p=document.getElementById('trPanel');if(!p)return;
+  const active=S.trains.filter(t=>!t.done);
+  if(!active.length){p.innerHTML='<span style="color:var(--mut)">Sin trenes</span>';return;}
+  let h='<table style="width:100%;border-collapse:collapse;font-size:8px;font-family:var(--M)">';
+  h+='<tr style="color:var(--acc)"><th style="text-align:left;padding:1px 3px">ID</th><th>Dir</th><th>Posición</th><th>Estado</th></tr>';
+  for(const tr of active){
+    const idx=Math.min(tr.pi,tr.pts.length-2);
+    const cx=tr.pts[idx].x+(tr.pts[idx+1].x-tr.pts[idx].x)*tr.t;
+    // Determinar estación/cantón
+    let pos='—';
+    for(const stn of STNS){
+      const X=XS[stn];
+      if(cx>=X.leftEdge&&cx<=X.rightEdge){pos=STN_LBL[stn];break;}
+    }
+    if(pos==='—'){
+      for(let n=1;n<=31;n++){if(cx>=BLK[n].xL&&cx<=BLK[n].xR){pos='Ctón '+n;break;}}
+    }
+    const dir=tr.dir==='AB'?'→':'←';
+    const estado=tr.mHold?'🟠 Detenido':tr.stopTimer>0?'🚏 Parada':tr.w?'🔴 Parado':tr.sl>0?'🟡 Frenando':'🟢 Marcha';
+    const dot=`<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${tr.color||'#e8a020'};vertical-align:middle;margin-right:3px"></span>`;
+    h+=`<tr><td style="padding:1px 3px">${dot}${tr.id}</td><td style="text-align:center">${dir}</td><td style="text-align:center">${pos}</td><td style="text-align:center;font-size:7px">${estado}</td></tr>`;
+  }
+  h+='</table>';
+  p.innerHTML=h;
+}
+
+// ═══ ATAJOS DE TECLADO ═══
+document.addEventListener('keydown',e=>{
+  if(e.target.tagName==='INPUT'||e.target.tagName==='SELECT'||e.target.tagName==='TEXTAREA')return;
+  if((e.ctrlKey||e.metaKey)&&e.code==='KeyZ'){e.preventDefault();undoLast();return;}
+  switch(e.code){
+    case'Space':e.preventDefault();tPause();break;
+    case'KeyR':resetSim();break;
+    case'KeyZ':undoLast();break;
+    case'Digit1':case'Digit3':
+      document.getElementById('scnSel').value=e.code.replace('Digit','');runScn();break;
+  }
+});
+
+let lt=0;function loop(ts){if(!S.paused&&ts-lt>16){tickTrains();if(S.tick%8===0){updUI();updTrainPanel();if(REC.active)updRecEvt();}if(S.tick%4===0)updPN();
+  simTime+=0.05; // sim minutes advance at constant rate (independent of train speed)
+  if(S.tick%3===0)mallaTrack();
+  if(S.tick%6===0&&currentView!=='ctc')drawMalla();
+  S.tick++;lt=ts;}requestAnimationFrame(loop);}
+
+// ═══ CV NAMES (ADIF §5.5) ═══
+const STN_NAMES={A:'Est.1',B:'Est.2',C:'Est.3',D:'Est.4',E:'Est.5',F:'Est.6',G:'Est.7'};
+function drawCVNames(){
+  for(const[id,sg]of Object.entries(SEGS)){
+    if(sg.isBlk)continue;
+    const cx=(sg.x1+sg.x2)/2;
+    // Place label below for V3 (above), above for V1/V2 (below)
+    const yOff=sg.y===Y.V3?12:sg.y===Y.V1?-10:-10;
+    // Short name: strip station prefix letter
+    const p=id.charAt(0), short=id.substring(1);
+    gCVN.appendChild(tx(short,{x:cx,y:sg.y+yOff,class:'cvn'}));
+  }
+}
+
+// ═══ ANDENES (ADIF §5.3.2) ═══
+function drawAndenes(){
+  STNS.forEach(p=>{
+    const X=XS[p], xc=(X.stationStart+X.stationEnd)/2, hw=(X.stationEnd-X.stationStart)/4;
+    const xs=xc-hw, xe=xc+hw;
+    // Andén 1: between V3 and V1
+    const y1=(Y.V3+Y.V1)/2;
+    gAND.appendChild(el('line',{x1:xs,y1,x2:xe,y2:y1,stroke:'#aaaaaa','stroke-width':1.5,opacity:.5}));
+    for(let x=xs+8;x<xe;x+=18)gAND.appendChild(el('rect',{x:x-3,y:y1-3,width:6,height:6,rx:1,fill:'none',stroke:'#aaaaaa','stroke-width':.8,opacity:.4}));
+    gAND.appendChild(tx('Andén 1',{x:xc,y:y1-6,fill:'#888','font-family':'Share Tech Mono,monospace','font-size':'7','text-anchor':'middle',opacity:.6}));
+    // Andén 2: between V1 and V2
+    const y2=(Y.V1+Y.V2)/2;
+    gAND.appendChild(el('line',{x1:xs,y1:y2,x2:xe,y2:y2,stroke:'#aaaaaa','stroke-width':1.5,opacity:.5}));
+    for(let x=xs+8;x<xe;x+=18)gAND.appendChild(el('rect',{x:x-3,y:y2-3,width:6,height:6,rx:1,fill:'none',stroke:'#aaaaaa','stroke-width':.8,opacity:.4}));
+    gAND.appendChild(tx('Andén 2',{x:xc,y:y2-6,fill:'#888','font-family':'Share Tech Mono,monospace','font-size':'7','text-anchor':'middle',opacity:.6}));
+  });
+}
+
+// ═══ MALLA (Grafo Tiempo-Distancia) ═══
+const MALLA_PKS=[{id:'A',name:'GDL',pk:0},{id:'B',name:'AZQ',pk:5},{id:'C',name:'MCO',pk:10},{id:'D',name:'A.Uni',pk:15},{id:'E',name:'ALC',pk:20},{id:'F',name:'GAR',pk:25},{id:'G',name:'SHen',pk:30},{id:'H',name:'TRJ',pk:35},{id:'I',name:'SFer',pk:40},{id:'J',name:'COS',pk:45},{id:'K',name:'VIC',pk:50},{id:'L',name:'SEug',pk:55},{id:'M',name:'VAL',pk:60},{id:'N',name:'Pozo',pk:65},{id:'O',name:'Ent',pk:70},{id:'P',name:'ATO',pk:75},{id:'Q',name:'REC',pk:80},{id:'R',name:'NMin',pk:85},{id:'S',name:'CHM',pk:90},{id:'T',name:'RyC',pk:95},{id:'U',name:'MIR',pk:100},{id:'V',name:'PIT',pk:105},{id:'W',name:'PdR',pk:110},{id:'X',name:'LMat',pk:115},{id:'Y',name:'TOR',pk:120},{id:'Z',name:'GAL',pk:125},{id:'a',name:'VLB',pk:130},{id:'b',name:'LNeg',pk:135},{id:'c',name:'ALP',pk:140},{id:'d',name:'CMed',pk:145},{id:'e',name:'LMol',pk:150},{id:'f',name:'CER',pk:155}];
+// Station zones: flat PK between entry signals
+const STN_ZONES=[];
+MALLA_PKS.forEach(s=>{
+  const X=XS[s.id];
+  STN_ZONES.push({pk:s.pk,xL:X.leftApproachEnd-10,xR:X.rightApproachStart+10});
+});
+function xToPk(x){
+  // Inside station zone → flat PK
+  for(const z of STN_ZONES){if(x>=z.xL&&x<=z.xR)return z.pk;}
+  // Between stations → interpolate
+  for(let i=0;i<STN_ZONES.length-1;i++){
+    const a=STN_ZONES[i],b=STN_ZONES[i+1];
+    if(x>a.xR&&x<b.xL){return a.pk+(b.pk-a.pk)*(x-a.xR)/(b.xL-a.xR);}
+  }
+  if(x<=STN_ZONES[0].xL)return STN_ZONES[0].pk;
+  return STN_ZONES[STN_ZONES.length-1].pk;
+}
+// Track history: {id, color, pts:[{t,pk}]}
+const mallaTraces=[];
+const MALLA_COLORS=['#00e87a','#ff5555','#5599ff','#ffaa22','#ff44cc','#44ffcc','#aaff44','#ff8844','#88aaff','#ffff44'];
+let mallaColorIdx=0;
+let simTime=0; // simulation minutes from 08:00
+const SIM_T0=480; // 8:00 in minutes
+
+function mallaTrack(){
+  for(const tr of S.trains){
+    if(tr.done)continue;
+    let trace=mallaTraces.find(t=>t.id===tr.id);
+    if(!trace){
+      trace={id:tr.id,color:tr.color||MALLA_COLORS[mallaColorIdx%MALLA_COLORS.length],pts:[]};
+      mallaTraces.push(trace);
+    }
+    const idx=Math.min(tr.pi,tr.pts.length-2);
+    const p=tr.pts[idx],q=tr.pts[idx+1];
+    if(!p||!q)continue;
+    const cx=p.x+(q.x-p.x)*tr.t;
+    const pk=xToPk(cx);
+    const t=SIM_T0+simTime;
+    // Add point, avoid duplicates at same time
+    const last=trace.pts[trace.pts.length-1];
+    if(!last||last.t!==t||Math.abs(last.pk-pk)>0.01){
+      trace.pts.push({t,pk});
+    }
+  }
+}
+
+function drawMalla(){
+  const canvas=document.getElementById('mallaCanvas');
+  if(!canvas||canvas.offsetWidth===0)return;
+  const dpr=window.devicePixelRatio||1;
+  const W=canvas.offsetWidth,H=canvas.offsetHeight;
+  canvas.width=W*dpr;canvas.height=H*dpr;
+  const ctx=canvas.getContext('2d');
+  ctx.scale(dpr,dpr);
+
+  ctx.fillStyle='#07090d';ctx.fillRect(0,0,W,H);
+
+  const ml=65,mr=15,mt=25,mb=35;
+  const pw=W-ml-mr,ph=H-mt-mb;
+  if(pw<10||ph<10)return;
+
+  // Eje X: tiempo desde inicio, crece con la simulación
+  const tNow=SIM_T0+simTime;
+  const tMin=SIM_T0;
+  const tMax=Math.max(SIM_T0+30,tNow+5);
+  const pkMin=0,pkMax=155;
+
+  const tToX=t=>ml+(t-tMin)/(tMax-tMin)*pw;
+  const pkToY=pk=>mt+(1-pk/pkMax)*ph;
+
+  // Líneas verticales cada 5 min, etiquetas cada 5 min
+  ctx.font='9px Share Tech Mono,monospace';ctx.textAlign='center';
+  for(let t=Math.ceil(tMin/5)*5;t<=tMax;t+=5){
+    const x=tToX(t);
+    if(x<ml||x>ml+pw)continue;
+    ctx.strokeStyle='#1e3040';ctx.lineWidth=0.6;
+    ctx.beginPath();ctx.moveTo(x,mt);ctx.lineTo(x,mt+ph);ctx.stroke();
+    ctx.fillStyle='#4a6070';
+    const h=Math.floor(t/60),m=Math.floor(t%60);
+    ctx.fillText(String(h).padStart(2,'0')+':'+String(m).padStart(2,'0'),x,mt+ph+15);
+  }
+
+  // Estaciones (horizontal)
+  ctx.textAlign='right';
+  for(const s of MALLA_PKS){
+    const y=pkToY(s.pk);
+    ctx.strokeStyle=s.pk===0||s.pk===60?'#2a4050':'#12263a';
+    ctx.lineWidth=s.pk===0||s.pk===60?1:0.5;
+    ctx.beginPath();ctx.moveTo(ml,y);ctx.lineTo(ml+pw,y);ctx.stroke();
+    ctx.fillStyle='#6ad0e0';ctx.font='bold 13px Rajdhani,sans-serif';
+    ctx.fillText(s.name,ml-5,y+5);
+  }
+
+  // Título + reloj
+  ctx.fillStyle='#00e87a';ctx.font='bold 12px Rajdhani,sans-serif';ctx.textAlign='left';
+  ctx.fillText('Malla — Guadalajara–Cercedilla',ml,15);
+  ctx.fillStyle='#4a6070';ctx.font='9px Share Tech Mono,monospace';
+  const h=Math.floor(tNow/60),m=Math.floor(tNow%60);
+  ctx.fillText(String(h).padStart(2,'0')+':'+String(m).padStart(2,'0'),ml+180,15);
+
+  // Clip
+  ctx.save();
+  ctx.beginPath();ctx.rect(ml,mt,pw,ph);ctx.clip();
+
+  // Trazas de trenes
+  for(const trace of mallaTraces){
+    if(trace.pts.length<2)continue;
+    ctx.strokeStyle=trace.color;
+    ctx.lineWidth=2;
+    ctx.beginPath();
+    let started=false;
+    for(const pt of trace.pts){
+      const x=tToX(pt.t),y=pkToY(pt.pk);
+      if(!started){ctx.moveTo(x,y);started=true;}
+      else ctx.lineTo(x,y);
+    }
+    ctx.stroke();
+
+    // Número de tren al inicio
+    if(trace.pts.length>3){
+      const p0=trace.pts[Math.min(3,trace.pts.length-1)];
+      const x0=tToX(p0.t),y0=pkToY(p0.pk);
+      if(x0>=ml&&x0<=ml+pw){
+        ctx.fillStyle=trace.color;ctx.font='bold 8px Share Tech Mono,monospace';ctx.textAlign='left';
+        ctx.fillText(trace.id,x0+3,y0-5);
+      }
+    }
+
+    // Punto vivo en posición actual
+    const last=trace.pts[trace.pts.length-1];
+    const lx=tToX(last.t),ly=pkToY(last.pk);
+    if(lx>=ml&&lx<=ml+pw){
+      ctx.fillStyle=trace.color;
+      ctx.beginPath();ctx.arc(lx,ly,4.5,0,Math.PI*2);ctx.fill();
+      ctx.fillStyle='#07090d';
+      ctx.beginPath();ctx.arc(lx,ly,2,0,Math.PI*2);ctx.fill();
+    }
+  }
+  ctx.restore();
+
+  ctx.save();ctx.translate(12,mt+ph/2);ctx.rotate(-Math.PI/2);
+  ctx.fillStyle='#4a6070';ctx.font='9px Share Tech Mono,monospace';ctx.textAlign='center';
+  ctx.fillText('PK (km)',0,0);ctx.restore();
+}
+
+// ═══ VIEW TOGGLE ═══
+let currentView='ctc';
+function setView(mode){
+  currentView=mode;
+  const ctc=document.getElementById('ctcPane');
+  const malla=document.getElementById('mallaPane');
+  document.getElementById('vCTC').classList.toggle('ac',mode==='ctc');
+  document.getElementById('vMalla').classList.toggle('ac',mode==='malla');
+  document.getElementById('vBoth').classList.toggle('ac',mode==='both');
+  if(mode==='ctc'){ctc.style.display='';ctc.style.flex='1';malla.style.display='none';}
+  else if(mode==='malla'){ctc.style.display='none';malla.style.display='';malla.style.flex='1';}
+  else{ctc.style.display='';ctc.style.flex='1';malla.style.display='';malla.style.flex='1';}
+  if(mode!=='ctc')drawMalla();
+}
+
+// ═══ UNDO ═══
+const undoStack=[];
+function undoPush(rk){undoStack.push(rk);if(undoStack.length>50)undoStack.shift();}
+function undoLast(){
+  if(!undoStack.length){log('↶ Nada que deshacer','er');return;}
+  const rk=undoStack.pop();
+  if(S.ar[rk]){
+    // Force cancel even if occupied — free segments first
+    const r=S.ar[rk];
+    for(const s of r.sg){const sg=S.seg[s];if(sg){sg.occ=false;sg.res=false;updSeg(s);}}
+    for(const sw of Object.keys(r.sw)){const s=S.sw[sw];if(s){s.lk=false;updSw(sw);}}
+    updAsp(r.f,'STOP');
+    if(!r.ex){const avz=r.f.replace(/E([1234])$/,"E'$1");if(S.sig[avz])updAsp(avz,'STOP');}
+    delete S.ar[rk];
+    syncAvz();updUI();
+    log('↶ Deshecho: '+rk,'ok');
+  } else {
+    log('↶ '+rk+' ya cancelado','i');
+    undoLast(); // try next
+  }
+}
+
+// ═══ SISTEMA DE GRABACIÓN ═══
+const REC={active:false,replaying:false,startTick:0,events:[],saved:[]};
+function recExport(){
+  if(!REC.saved.length){log('❌ Sin grabaciones','er');return;}
+  const json=JSON.stringify(REC.saved,null,2);
+  const blob=new Blob([json],{type:'application/json'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='ctc_grabaciones_'+new Date().toISOString().slice(0,10)+'.json';
+  a.click();URL.revokeObjectURL(a.href);
+  log('💾 Exportadas '+REC.saved.length+' grabaciones','ok');
+}
+function recImport(){document.getElementById('recFileIn').click();}
+function recLoadFile(input){
+  const file=input.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=function(e){
+    try{
+      const data=JSON.parse(e.target.result);
+      if(Array.isArray(data)){
+        REC.saved.push(...data);
+        updRecList();
+        log('📂 Importadas '+data.length+' grabaciones','ok');
+      }else{log('❌ Formato inválido','er');}
+    }catch(err){log('❌ Error: '+err.message,'er');}
+    input.value='';
+  };
+  reader.readAsText(file);
+}
+function recStart(){
+  if(REC.active)return;
+  resetSim2();
+  REC.active=true;REC.startTick=S.tick;REC.events=[];
+  document.getElementById('recStartBtn').style.display='none';
+  document.getElementById('recActive').style.display='block';
+  document.getElementById('recEvtCount').textContent='0';
+  log('⏺ GRABACIÓN iniciada — opera normalmente','i');
+}
+function resetSim2(){
+  for(const tr of S.trains){if(tr.el)tr.el.remove();if(tr.pathLine)tr.pathLine.remove();}
+  S.trains=[];
+  // Liberar todos los segmentos primero
+  for(const[id,sg] of Object.entries(S.seg)){sg.occ=false;sg.res=false;updSeg(id);}
+  // Ahora cancelar rutas (ya sin segmentos ocupados)
+  for(const k of Object.keys(S.ar)){
+    const r=S.ar[k];if(!r)continue;
+    for(const sw of Object.keys(r.sw)){const s=S.sw[sw];if(s){s.lk=false;updSw(sw);}}
+    updAsp(r.f,'STOP');
+    if(!r.ex){const avz=r.f.replace(/E([1234])$/,"E'$1");if(S.sig[avz])updAsp(avz,'STOP');}
+    delete S.ar[k];
+  }
+  for(let i=1;i<=31;i++){S.blk[i].s='libre';S.blk[i].d=null;updBlkD(i,'V1');if(i<=26&&S.blkV2[i]){S.blkV2[i].s='libre';S.blkV2[i].d=null;updBlkD(i,'V2');}}
+  for(const[id,sw]of Object.entries(S.sw)){sw.pos='N';sw.lk=false;updSw(id);}
+  for(const[id,sg]of Object.entries(S.sig)){updAsp(id,'STOP');}
+  tPar=0;tImpar=1;simTime=0;mallaTraces.length=0;mallaColorIdx=0;
+  if(typeof PN!=='undefined'){PN.manualOff=false;PN.protected=false;updPN();}
+  syncAvz();updUI();updTrainPanel();
+  log('↺ Simulación reseteada','i');
+}
+function recStop(){
+  if(!REC.active)return;
+  REC.active=false;
+  document.getElementById('recStartBtn').style.display='';
+  document.getElementById('recActive').style.display='none';
+  const name=prompt('Nombre para el escenario grabado:','Escenario '+(REC.saved.length+1));
+  if(!name){log('⏹ Grabación descartada','er');return;}
+  const rec={name,events:[...REC.events],date:new Date().toLocaleString('es-ES')};
+  REC.saved.push(rec);
+  log('💾 "'+name+'" guardado ('+rec.events.length+' eventos)','ok');
+  updRecList();
+}
+function updRecEvt(){
+  const el=document.getElementById('recEvtCount');
+  if(el)el.textContent=REC.events.length;
+}
+function updRecList(){
+  const div=document.getElementById('recList');
+  if(!REC.saved.length){div.innerHTML='Sin grabaciones';return;}
+  div.innerHTML='';
+  REC.saved.forEach((rec,i)=>{
+    const row=document.createElement('div');
+    row.style.cssText='display:flex;align-items:center;gap:4px;margin-bottom:3px;padding:3px;background:rgba(255,255,255,.03);border-radius:3px';
+    row.innerHTML='<span style="flex:1;font-size:10px;color:var(--text)">'+rec.name+'</span>'+
+      '<span style="font-size:8px;color:var(--mut)">'+rec.events.length+' evt</span>'+
+      '<button onclick="recPlay('+i+')" style="padding:2px 6px;font-size:9px;cursor:pointer;background:#0a2218;color:#00e87a;border:1px solid #1a5533;border-radius:3px">▶</button>'+
+      '<button onclick="recDel('+i+')" style="padding:2px 5px;font-size:9px;cursor:pointer;background:#2a1515;color:#ff6666;border:1px solid #662222;border-radius:3px">✕</button>';
+    div.appendChild(row);
+  });
+}
+function recDel(i){
+  const name=REC.saved[i].name;
+  REC.saved.splice(i,1);
+  updRecList();
+  log('🗑 "'+name+'" eliminado','i');
+}
+function recPlay(i){
+  const rec=REC.saved[i];
+  if(!rec){log('❌ Grabación no encontrada','er');return;}
+  log('▶ Reproduciendo "'+rec.name+'" ('+rec.events.length+' eventos)','ok');
+  resetSim2();
+  if(S.paused)tPause(); // reanudar si está pausado
+  const baseTick=S.tick;
+  let evtIdx=0;
+  const replay=setInterval(()=>{
+    if(S.paused)return;
+    const elapsed=S.tick-baseTick;
+    while(evtIdx<rec.events.length&&rec.events[evtIdx].t<=elapsed){
+      const evt=rec.events[evtIdx];
+      switch(evt.a){
+        case 'route':
+          openRoute(evt.p);
+          break;
+        case 'spawn':
+          doSpawn(evt.p);
+          break;
+        case 'trCmd':{
+          const tr=S.trains.find(t=>t.id===evt.p.id&&!t.done);
+          if(tr){
+            selTrId=evt.p.id;
+            switch(evt.p.cmd){
+              case 'stop':tr.mHold=true;log('⏹ '+tr.id+' detenido','i');break;
+              case 'go':tr.mHold=false;log('▶ '+tr.id+' reanudado','ok');break;
+              case 'rev':reverseTrain(tr);break;
+            }
+          }
+          break;
+        }
+      }
+      evtIdx++;
+    }
+    if(evtIdx>=rec.events.length){
+      clearInterval(replay);
+      log('✅ "'+rec.name+'" completado','ok');
+    }
+  },30);
+}
+
+// ═══ INIT ═══
+// ═══ PASO A NIVEL (PN) ═══
+const PN={
+  x:Math.round((BLK[2].xL+BLK[2].xR)/2),
+  y:Y.V1,
+  bar:null,forkT:null,forkB:null,
+  xL:null,xR:null,wL:null,wR:null,
+  protected:false,manualOff:false,det:120
+};
+function drawPN(){
+  const g=document.createElementNS('http://www.w3.org/2000/svg','g');
+  g.setAttribute('id','gPN');g.setAttribute('style','cursor:pointer');
+  PN.bar=el('line',{x1:PN.x,y1:PN.y-65,x2:PN.x,y2:PN.y+65,'stroke-width':3,stroke:'#cc3030'});
+  g.appendChild(PN.bar);
+  PN.forkT=el('polyline',{points:`${PN.x-12},${PN.y-80} ${PN.x},${PN.y-65} ${PN.x+12},${PN.y-80}`,fill:'none','stroke-width':2.5,stroke:'#cc3030','stroke-linecap':'round','stroke-linejoin':'round'});
+  g.appendChild(PN.forkT);
+  PN.forkB=el('polyline',{points:`${PN.x-12},${PN.y+80} ${PN.x},${PN.y+65} ${PN.x+12},${PN.y+80}`,fill:'none','stroke-width':2.5,stroke:'#cc3030','stroke-linecap':'round','stroke-linejoin':'round'});
+  g.appendChild(PN.forkB);
+  const sxL=PN.x-55,syL=PN.y+45;
+  g.appendChild(el('rect',{x:sxL-14,y:syL-12,width:28,height:24,rx:3,fill:'#1a1a1a',stroke:'#333','stroke-width':1}));
+  PN.xL=document.createElementNS('http://www.w3.org/2000/svg','g');
+  PN.xL.innerHTML='<line x1="'+(sxL-7)+'" y1="'+(syL-7)+'" x2="'+(sxL+7)+'" y2="'+(syL+7)+'" stroke="#ddaa00" stroke-width="2.5" stroke-linecap="round"/><line x1="'+(sxL+7)+'" y1="'+(syL-7)+'" x2="'+(sxL-7)+'" y2="'+(syL+7)+'" stroke="#ddaa00" stroke-width="2.5" stroke-linecap="round"/>';
+  PN.xL.setAttribute('class','pn-flash');g.appendChild(PN.xL);
+  PN.wL=document.createElementNS('http://www.w3.org/2000/svg','g');
+  PN.wL.appendChild(el('line',{x1:sxL,y1:syL-8,x2:sxL,y2:syL+8,stroke:'white','stroke-width':2.5,'stroke-linecap':'round'}));
+  PN.wL.appendChild(el('polyline',{points:(sxL-5)+','+(syL-13)+' '+sxL+','+(syL-8)+' '+(sxL+5)+','+(syL-13),fill:'none',stroke:'white','stroke-width':2,'stroke-linecap':'round','stroke-linejoin':'round'}));
+  PN.wL.appendChild(el('polyline',{points:(sxL-5)+','+(syL+13)+' '+sxL+','+(syL+8)+' '+(sxL+5)+','+(syL+13),fill:'none',stroke:'white','stroke-width':2,'stroke-linecap':'round','stroke-linejoin':'round'}));
+  PN.wL.setAttribute('display','none');g.appendChild(PN.wL);
+  const sxR=PN.x+55,syR=PN.y-45;
+  g.appendChild(el('rect',{x:sxR-14,y:syR-12,width:28,height:24,rx:3,fill:'#1a1a1a',stroke:'#333','stroke-width':1}));
+  PN.xR=document.createElementNS('http://www.w3.org/2000/svg','g');
+  PN.xR.innerHTML='<line x1="'+(sxR-7)+'" y1="'+(syR-7)+'" x2="'+(sxR+7)+'" y2="'+(syR+7)+'" stroke="#ddaa00" stroke-width="2.5" stroke-linecap="round"/><line x1="'+(sxR+7)+'" y1="'+(syR-7)+'" x2="'+(sxR-7)+'" y2="'+(syR+7)+'" stroke="#ddaa00" stroke-width="2.5" stroke-linecap="round"/>';
+  PN.xR.setAttribute('class','pn-flash');g.appendChild(PN.xR);
+  PN.wR=document.createElementNS('http://www.w3.org/2000/svg','g');
+  PN.wR.appendChild(el('line',{x1:sxR,y1:syR-8,x2:sxR,y2:syR+8,stroke:'white','stroke-width':2.5,'stroke-linecap':'round'}));
+  PN.wR.appendChild(el('polyline',{points:(sxR-5)+','+(syR-13)+' '+sxR+','+(syR-8)+' '+(sxR+5)+','+(syR-13),fill:'none',stroke:'white','stroke-width':2,'stroke-linecap':'round','stroke-linejoin':'round'}));
+  PN.wR.appendChild(el('polyline',{points:(sxR-5)+','+(syR+13)+' '+sxR+','+(syR+8)+' '+(sxR+5)+','+(syR+13),fill:'none',stroke:'white','stroke-width':2,'stroke-linecap':'round','stroke-linejoin':'round'}));
+  PN.wR.setAttribute('display','none');g.appendChild(PN.wR);
+  g.addEventListener('click',function(e){
+    e.stopPropagation();
+    PN.manualOff=!PN.manualOff;
+    if(PN.manualOff)log('⚠️ PN desprotegido manual','er');
+    else log('✅ PN protección automática','ok');
+    updPN();
+  });
+  document.getElementById('diagram').appendChild(g);
+}
+function updPN(){
+  var trainNear=false;
+  for(var ti=0;ti<S.trains.length;ti++){
+    var tr=S.trains[ti];if(tr.done)continue;
+    var idx=Math.min(tr.pi,tr.pts.length-2);
+    var cx=tr.pts[idx].x+(tr.pts[idx+1].x-tr.pts[idx].x)*tr.t;
+    var cy=tr.pts[idx].y+(tr.pts[idx+1].y-tr.pts[idx].y)*tr.t;
+    if(Math.abs(cx-PN.x)<PN.det&&Math.abs(cy-PN.y)<60){trainNear=true;break;}
+  }
+  var prot=trainNear&&!PN.manualOff;
+  if(prot===PN.protected)return;
+  PN.protected=prot;
+  var col=prot?'#00aa44':'#cc3030';
+  PN.bar.setAttribute('stroke',col);
+  PN.forkT.setAttribute('stroke',col);
+  PN.forkB.setAttribute('stroke',col);
+  if(prot){
+    PN.xL.setAttribute('display','none');PN.xR.setAttribute('display','none');
+    PN.wL.setAttribute('display','');
+    PN.wR.setAttribute('display','');
+  }else{
+    PN.xL.setAttribute('display','');PN.xR.setAttribute('display','');
+    PN.wL.setAttribute('display','none');
+    PN.wR.setAttribute('display','none');
+  }
+}
+
+function buildQR(){
+  const div=document.getElementById('qrBody');if(!div)return;
+  div.innerHTML='';
+  STNS.forEach((p,i)=>{
+    const nm=STN_LBL[p]||('Est.'+(i+1));
+    const dR=DV2R[p],dL=DV2L[p];
+    const t=document.createElement('div');t.className='stl';t.textContent='— '+nm+' ('+p+') —';
+    div.appendChild(t);
+    // Entry from right (E1) → V1,V2,V3
+    let row=document.createElement('div');row.className='br';
+    row.innerHTML='<button class="bv" onclick="qR(\''+p+'\',\'E2\',\'CV1\')">E2→1</button>'+
+      '<button class="bv" onclick="qR(\''+p+'\',\'E2\',\'CV2\')">E2→2</button>'+
+      '<button class="bv" onclick="qR(\''+p+'\',\'E2\',\'CV3\')">E2→3</button>'+
+      '<button class="bv" onclick="qE(\''+p+'\',\'S2\')">S2→</button>';
+    div.appendChild(row);
+    row=document.createElement('div');row.className='br';
+    row.innerHTML='<button class="bv" onclick="qR(\''+p+'\',\'E1\',\'CV1\')">E1→1</button>'+
+      '<button class="bv" onclick="qR(\''+p+'\',\'E1\',\'CV2\')">E1→2</button>'+
+      '<button class="bv" onclick="qR(\''+p+'\',\'E1\',\'CV3\')">E1→3</button>'+
+      '<button class="bv" onclick="qE(\''+p+'\',\'S1\')">←S1</button>';
+    div.appendChild(row);
+    if(dR||dL){
+      row=document.createElement('div');row.className='br';
+      let btns='';
+      if(dR)btns+='<button class="bv" onclick="qR(\''+p+'\',\'E3\',\'CV2\')">E3→2</button><button class="bv" onclick="qE(\''+p+'\',\'S2V2\')">S2→V2</button>';
+      if(dL)btns+='<button class="bv" onclick="qR(\''+p+'\',\'E4\',\'CV2\')">E4→2</button><button class="bv" onclick="qE(\''+p+'\',\'S1V2\')">←S1V2</button>';
+      row.innerHTML=btns;
+      div.appendChild(row);
+    }
+  });
+}
+
+function init(){
+  addFilters();drawGrid();
+  drawStation('A','GUADALAJARA');drawStation('B','AZUQUECA');drawStation('C','MECO');drawStation('D','ALCALÁ UNIV.');drawStation('E','ALCALÁ DE H.');drawStation('F','LA GARENA');drawStation('G','SOTO DEL HENARES');drawStation('H','TORREJÓN');drawStation('I','S. FERNANDO');drawStation('J','COSLADA');drawStation('K','VICÁLVARO');drawStation('L','STA. EUGENIA');drawStation('M','VALLECAS');drawStation('N','EL POZO');drawStation('O','ASAMBL.-ENTREVÍAS');drawStation('P','ATOCHA');drawStation('Q','RECOLETOS');drawStation('R','NUEVOS MINISTERIOS');drawStation('S','CHAMARTÍN');drawStation('T','RAMÓN Y CAJAL');drawStation('U','MIRASIERRA');drawStation('V','PITIS');drawStation('W','PINAR DE LAS ROZAS');drawStation('X','LAS MATAS');drawStation('Y','TORRELODONES');drawStation('Z','GALÁPAGAR');drawStation('a','VILLALBA');drawStation('b','LOS NEGRALES');drawStation('c','ALPEDRETE');drawStation('d','COLLADO MEDIANO');drawStation('e','LOS MOLINOS');drawStation('f','CERCEDILLA');
+  drawAndenes();
+  for(let n=1;n<=31;n++){drawBlk(n);S.seg['BLK'+n]={el:document.getElementById('bt'+n),occ:false,res:false};}
+  for(let n=1;n<=26;n++)S.seg['BLKV2_'+n]={el:document.getElementById('btv2_'+n),occ:false,res:false};
+  drawSwitches();drawSignals();drawCVNames();drawPN();buildBlkUI();buildQR();
+  updUI();for(let n=1;n<=31;n++){updBlkD(n,'V1');if(n<=26)updBlkD(n,'V2');}syncAvz();
+  log('CTC Guadalajara–Cercedilla — 32 estaciones','ok');
+  log('Clic señal entrada + señal salida para ruta','i');
+  requestAnimationFrame(loop);setInterval(()=>document.getElementById('clock').textContent=new Date().toLocaleTimeString('es-ES',{hour12:false}),1000);
+}
+init();
+</script>
+<script src="/socket.io/socket.io.js"></script>
+<script src="/js/ctc-sync.js"></script>
+</body></html>
