@@ -6,7 +6,6 @@ const path = require('path');
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server, { cors: { origin: '*' }, pingTimeout: 60000, pingInterval: 25000 });
-
 app.use(express.static(path.join(__dirname, 'public')));
 
 const rooms = new Map();
@@ -15,6 +14,7 @@ class Room {
   constructor(code, hostId) {
     this.code = code; this.hostId = hostId; this.state = 'lobby';
     this.players = new Map(); this.createdAt = Date.now(); this.destroyTimer = null;
+    this.masterRC = null; // Socket ID of the RC that syncs train positions
   }
   addPlayer(socketId, name, role) {
     const counts = this.getRoleCounts();
@@ -23,13 +23,25 @@ class Room {
     if (this.destroyTimer) { clearTimeout(this.destroyTimer); this.destroyTimer = null; }
     const player = { id: socketId, name, role, connected: true, joinedAt: Date.now() };
     this.players.set(socketId, player);
-    return { ok: true, player };
+    // First RC becomes master
+    if (role === 'rc' && !this.masterRC) {
+      this.masterRC = socketId;
+      console.log(`[MASTER] ${name} is now master RC`);
+    }
+    return { ok: true, player, isMaster: this.masterRC === socketId };
   }
   removePlayer(socketId) {
     const player = this.players.get(socketId);
     this.players.delete(socketId);
+    // If master RC left, promote next RC
+    if (socketId === this.masterRC) {
+      this.masterRC = null;
+      for (const [sid, p] of this.players) {
+        if (p.role === 'rc') { this.masterRC = sid; console.log(`[MASTER] ${p.name} promoted to master RC`); break; }
+      }
+    }
     if (this.players.size === 0) {
-      this.destroyTimer = setTimeout(() => { rooms.delete(this.code); console.log(`[ROOM] ${this.code} eliminada`); }, 30000);
+      this.destroyTimer = setTimeout(() => { rooms.delete(this.code); }, 30000);
     }
     return player;
   }
@@ -39,7 +51,9 @@ class Room {
     return c;
   }
   getPlayerList() {
-    return Array.from(this.players.values()).map(p => ({ id: p.id, name: p.name, role: p.role }));
+    return Array.from(this.players.values()).map(p => ({
+      id: p.id, name: p.name, role: p.role, isMaster: p.id === this.masterRC
+    }));
   }
 }
 
@@ -55,8 +69,8 @@ io.on('connection', (socket) => {
     const code = genCode();
     const room = new Room(code, socket.id); rooms.set(code, room);
     const r = room.addPlayer(socket.id, data.name, data.role);
-    if (r.ok) { socket.join(code); currentRoom = room; console.log(`[+] ${data.name} creó ${code}`); }
-    cb({ ok: r.ok, code, player: r.player, reason: r.reason });
+    if (r.ok) { socket.join(code); currentRoom = room; }
+    cb({ ok: r.ok, code, player: r.player, isMaster: r.isMaster, reason: r.reason });
     if (r.ok) io.to(code).emit('room:players', room.getPlayerList());
   });
 
@@ -66,8 +80,7 @@ io.on('connection', (socket) => {
     const r = room.addPlayer(socket.id, data.name, data.role);
     if (!r.ok) return cb({ ok: false, reason: r.reason });
     socket.join(data.code.toUpperCase()); currentRoom = room;
-    console.log(`[+] ${data.name} → ${data.code} (${data.role})`);
-    cb({ ok: true, code: room.code, player: r.player, gameState: room.state });
+    cb({ ok: true, code: room.code, player: r.player, gameState: room.state, isMaster: r.isMaster });
     io.to(room.code).emit('room:players', room.getPlayerList());
   });
 
@@ -75,17 +88,34 @@ io.on('connection', (socket) => {
     if (!currentRoom) return cb?.({ ok: false });
     currentRoom.state = 'running';
     io.to(currentRoom.code).emit('game:started', {});
-    console.log(`[GAME] ${currentRoom.code} iniciada`);
     cb?.({ ok: true });
   });
 
-  // ═══ ACTION RELAY — core of multiplayer ═══
+  // ═══ ACTION RELAY — any RC can send actions ═══
   socket.on('action', (data) => {
     if (!currentRoom) return;
     const player = currentRoom.players.get(socket.id);
     if (!player || player.role !== 'rc') return;
     io.to(currentRoom.code).emit('action:exec', {
       type: data.type, args: data.args || [], ctx: data.ctx || {}, from: player.name
+    });
+  });
+
+  // ═══ TRAIN SYNC — ONLY master RC broadcasts positions ═══
+  socket.on('train:sync', (data) => {
+    if (!currentRoom) return;
+    if (socket.id !== currentRoom.masterRC) return; // Only master
+    socket.to(currentRoom.code).volatile.emit('train:sync', data);
+  });
+
+  // ═══ MAQUINISTA: train commands go to master RC ═══
+  socket.on('maq:cmd', (data) => {
+    if (!currentRoom) return;
+    const player = currentRoom.players.get(socket.id);
+    if (!player || player.role !== 'maquinista') return;
+    // Forward as action to all (master RC will execute it)
+    io.to(currentRoom.code).emit('action:exec', {
+      type: 'trCmd', args: [data.cmd], ctx: { selTrId: data.trainId }, from: player.name + ' (MAQ)'
     });
   });
 
@@ -103,6 +133,10 @@ io.on('connection', (socket) => {
       if (p) {
         io.to(currentRoom.code).emit('room:player-left', { name: p.name });
         io.to(currentRoom.code).emit('room:players', currentRoom.getPlayerList());
+        // Notify if master changed
+        if (currentRoom.masterRC) {
+          io.to(currentRoom.masterRC).emit('master:promoted');
+        }
       }
     }
   });
