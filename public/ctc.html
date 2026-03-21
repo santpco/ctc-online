@@ -286,8 +286,6 @@ const S={mode:'auto',paused:false,tick:0,sel:null,pending:null,ar:{},seg:{},sig:
  blkV2:[null,{s:'libre',d:null},{s:'libre',d:null},{s:'libre',d:null},{s:'libre',d:null},{s:'libre',d:null},{s:'libre',d:null},{s:'libre',d:null},{s:'libre',d:null},{s:'libre',d:null},{s:'libre',d:null},{s:'libre',d:null},{s:'libre',d:null},{s:'libre',d:null},{s:'libre',d:null},{s:'libre',d:null},{s:'libre',d:null},{s:'libre',d:null},{s:'libre',d:null},{s:'libre',d:null},{s:'libre',d:null},{s:'libre',d:null},{s:'libre',d:null},{s:'libre',d:null},{s:'libre',d:null},{s:'libre',d:null},{s:'libre',d:null},null,null,null,null,null]};
 let tPar=0,tImpar=1; // pares→AB, impares→BA
 let trSpeedMult=1;
-// ═══ EXPOSE TO WINDOW FOR MULTIPLAYER SYNC ═══
-window.S=S;window.SIGS=SIGS;window.XS=XS;window.STNS=STNS;window.SWD=SWD;window.SEGS=SEGS;window.RT=RT;window.BLK=BLK;window.DV2R=DV2R;window.DV2L=DV2L;window.AVZ_MAP=typeof AVZ_MAP!=='undefined'?AVZ_MAP:null;
 function setTrSpeed(v){trSpeedMult=parseFloat(v);log('⚡ Velocidad ×'+trSpeedMult,'i');}
 const ns='http://www.w3.org/2000/svg';
 function el(t,a={}){const e=document.createElementNS(ns,t);for(const[k,v]of Object.entries(a))e.setAttribute(k,v);return e;}
@@ -1876,7 +1874,9 @@ function init(){
 }
 init();
 // ═══ EXPOSE FUNCTIONS AND LATE VARS TO WINDOW ═══
-window.STN_LBL=STN_LBL;window.simTime=typeof simTime!=='undefined'?simTime:0;
+window.S=S;window.SIGS=SIGS;window.XS=XS;window.STNS=STNS;window.SWD=SWD;window.SEGS=SEGS;
+window.RT=RT;window.BLK=BLK;window.DV2R=DV2R;window.DV2L=DV2L;window.AVZ_MAP=AVZ_MAP;
+window.STN_LBL=STN_LBL;window.simTime=simTime;
 window.openRoute=openRoute;window.cancelRoute=cancelRoute;window.doSpawn=doSpawn;
 window.mAsp=mAsp;window.onSw=onSw;window.onSig=onSig;window.reqBlk=reqBlk;
 window.grantBlk=grantBlk;window.clearBlk=clearBlk;window.scenario=scenario;
