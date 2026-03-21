@@ -1155,6 +1155,7 @@ document.addEventListener('click',e=>{
   if(!e.target.closest('#trPop'))document.getElementById('trPop').style.display='none';
 });
 function trCmd(cmd){
+  if(window._selTrId){selTrId=window._selTrId;window._selTrId=null;}
   const tr=S.trains.find(t=>t.id===selTrId&&!t.done);
   if(!tr){log('❌ Tren no encontrado','er');return;}
   if(REC.active)REC.events.push({t:S.tick-REC.startTick,a:'trCmd',p:{id:tr.id,cmd}});
@@ -1881,7 +1882,7 @@ window.openRoute=openRoute;window.cancelRoute=cancelRoute;window.doSpawn=doSpawn
 window.mAsp=mAsp;window.onSw=onSw;window.onSig=onSig;window.reqBlk=reqBlk;
 window.grantBlk=grantBlk;window.clearBlk=clearBlk;window.scenario=scenario;
 window.resetSim=resetSim;window.resetSim2=resetSim2;window.tPause=tPause;
-window.setTrSpeed=setTrSpeed;window.trCmd=function(cmd){if(window._selTrId)selTrId=window._selTrId;window._selTrId=null;trCmd(cmd);};window._getSelTrId=function(){return selTrId;};window.sigToSig=sigToSig;
+window.setTrSpeed=setTrSpeed;window.trCmd=trCmd;window._getSelTrId=function(){return selTrId;};window.sigToSig=sigToSig;
 window.undoLast=undoLast;window.spawnTrain=spawnTrain;window.runScn=runScn;
 window.posTr=posTr;window.updSeg=updSeg;window.tickTrains=tickTrains;
 window.updUI=updUI;window.updTrainPanel=updTrainPanel;window.updPN=updPN;
