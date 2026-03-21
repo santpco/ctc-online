@@ -38,7 +38,7 @@
     _bp = true;
     try {
       if (c && c.sel !== undefined && window.S) window.S.sel = c.sel;
-      if (c && c.selTrId !== undefined) window.selTrId = c.selTrId;
+      if (c && c.selTrId !== undefined) window._selTrId = c.selTrId;
       if (O[t]) O[t].apply(null, a || []);
     } catch (e) { console.error('[S]', t, e); }
     _bp = false;
@@ -64,7 +64,7 @@
     window.resetSim2 = function() { if (_bp) return O.resetSim2(); send('resetSim2', []); };
     window.tPause = function() { if (_bp) return O.tPause(); send('tPause', []); };
     window.setTrSpeed = function(v) { if (_bp) return O.setTrSpeed(v); send('setTrSpeed', [v]); };
-    window.trCmd = function(c) { if (_bp) return O.trCmd(c); send('trCmd', [c], { selTrId: window.selTrId }); };
+    window.trCmd = function(c) { if (_bp) return O.trCmd(c); send('trCmd', [c], { selTrId: window._getSelTrId ? window._getSelTrId() : null }); };
     window.sigToSig = function(a, b) { if (_bp) return O.sigToSig(a, b); send('sigToSig', [a, b]); };
     window.undoLast = function() { if (_bp) return O.undoLast(); send('undoLast', []); };
     window.spawnTrain = function() { if (_bp) return O.spawnTrain(); send('doSpawn', [document.getElementById('tDir') ? document.getElementById('tDir').value : 'AB']); };
