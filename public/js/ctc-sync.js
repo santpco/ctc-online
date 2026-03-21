@@ -1,13 +1,13 @@
-// ctc-sync.js — Multiplayer sync (definitive)
-// Ghost trains for non-master. Reliable emit (no volatile). Sync counter for debug.
+// ctc-sync.js — DEFINITIVE multiplayer sync
+// ALL roles execute action broadcasts (routes, spawns, etc.)
+// Non-master: tickTrains disabled, train positions from RC sync
 (function() {
   'use strict';
   var params = JSON.parse(sessionStorage.getItem('ctc_session') || 'null');
   if (!params) return;
   var room = params.room, name = params.name, role = params.role;
   var socket = io(), connected = false, isMaster = false, _bypass = false;
-  var myTrainId = null, syncCount = 0;
-  var ns = 'http://www.w3.org/2000/svg';
+  var myTrainId = null, syncRx = 0;
 
   // Status bar
   var bar = document.createElement('div');
@@ -17,14 +17,12 @@
     '<span style="color:#4a6070">|</span><span style="color:' + clr + ';font-weight:bold">' + role.toUpperCase() + '</span> ' +
     '<span style="color:#4a6070">' + name + ' | <b style="color:#00e87a">' + room + '</b></span>' +
     '<span style="color:#4a6070">|</span><span id="syncPlayers" style="color:#4a6070">0</span>' +
-    '<span id="syncMaster" style="color:#ffc144;margin-left:4px"></span>' +
-    '<span style="flex:1"></span>' +
-    '<span id="syncCounter" style="color:#333;font-size:9px"></span>' +
-    '<span style="color:' + clr + ';margin-left:8px">' + (role === 'rc' ? '🔧' : role === 'cgo' ? '👁' : '🚂') + '</span>';
+    '<span id="syncMaster" style="color:#ffc144;margin-left:4px"></span><span style="flex:1"></span>' +
+    '<span id="syncDbg" style="color:#333;font-size:9px"></span>';
   document.body.prepend(bar);
   document.body.style.paddingTop = '28px';
 
-  // Capture originals
+  // Capture ALL originals before any override
   var O = {};
   ['openRoute','cancelRoute','doSpawn','mAsp','onSw','onSig','reqBlk','grantBlk',
    'clearBlk','scenario','resetSim','resetSim2','tPause','setTrSpeed','trCmd','sigToSig',
@@ -37,18 +35,20 @@
     if (!connected) { if (O[t]) O[t].apply(null, a || []); return; }
     socket.emit('action', { type: t, args: a || [], ctx: c || {} });
   }
-  function execB(t, a, c) {
+
+  // Execute a broadcast action locally using ORIGINAL functions
+  function execLocal(t, a, c) {
     _bypass = true;
     try {
       if (c && c.sel !== undefined && window.S) window.S.sel = c.sel;
       if (c && c.selTrId !== undefined) window.selTrId = c.selTrId;
       if (O[t]) O[t].apply(null, a || []);
-    } catch (e) { console.error('[S]', t, e); }
+    } catch (e) { console.error('[SYNC]', t, e); }
     _bypass = false;
   }
 
   // ══════════════════════════════════════════════════
-  // RC
+  // RC: Intercept user actions → send to server
   // ══════════════════════════════════════════════════
   if (role === 'rc') {
     window.openRoute = function(rk) { if (_bypass) return O.openRoute(rk); send('openRoute', [rk]); };
@@ -71,7 +71,7 @@
     window.runScn = function() { if (_bypass) return O.runScn(); var v = document.getElementById('scnSel') ? parseInt(document.getElementById('scnSel').value) : 0; if (v > 0) send('scenario', [v]); };
     window.onSig = function(id) { if (_bypass) return O.onSig(id); if (window.S && window.S.mode === 'auto') { if (window.S.pending) { if (window.S.pending === id) { if (window.clearPend) window.clearPend(); return; } var p = window.S.pending; if (window.clearPend) window.clearPend(); send('sigToSig', [p, id]); return; } O.onSig(id); } else { O.onSig(id); } };
 
-    // Background-safe
+    // Background-safe simulation
     var bgI = null;
     document.addEventListener('visibilitychange', function() {
       if (document.hidden) { bgI = setInterval(function() { if (window.S && !window.S.paused) { if (O.tickTrains) O.tickTrains(); if (window.S.tick % 8 === 0) { if (O.updUI) O.updUI(); } if (window.S.tick % 4 === 0 && O.updPN) O.updPN(); if (typeof window.simTime === 'number') window.simTime += 0.05; if (window.S.tick % 3 === 0 && O.mallaTrack) O.mallaTrack(); window.S.tick++; } }, 18); }
@@ -80,103 +80,107 @@
 
     socket.on('master:promoted', function() { isMaster = true; var m = document.getElementById('syncMaster'); if (m) m.textContent = '★ MASTER'; });
 
-    // Broadcast state every 250ms — RELIABLE (no volatile)
-    var syncSeq = 0;
+    // Master RC: broadcast train positions + signal states every 250ms
     setInterval(function() {
       if (!connected || !isMaster || !window.S) return;
-      var tr = window.S.trains, d = [];
-      for (var i = 0; i < tr.length; i++) {
-        var t = tr[i]; if (t.done) continue;
+      var d = [];
+      for (var i = 0; i < window.S.trains.length; i++) {
+        var t = window.S.trains[i]; if (t.done) continue;
         var idx = Math.min(t.pi, t.pts.length - 2), p = t.pts[idx], q = t.pts[idx + 1];
         if (!p || !q) continue;
-        d.push({ id: t.id,
-          x: Math.round((p.x + (q.x - p.x) * t.t) * 10) / 10,
-          y: Math.round((p.y + (q.y - p.y) * t.t) * 10) / 10,
-          spd: t.spd, w: t.w, mHold: t.mHold, sl: t.sl, cs: t.cs,
-          dir: t.dir, stopTimer: t.stopTimer || 0, color: t.color || '#e8a020'
-        });
+        d.push({ id: t.id, x: Math.round((p.x + (q.x - p.x) * t.t) * 10) / 10, y: Math.round((p.y + (q.y - p.y) * t.t) * 10) / 10, spd: t.spd, w: t.w, mHold: t.mHold, sl: t.sl, dir: t.dir, stopTimer: t.stopTimer || 0, color: t.color || '#e8a020', cs: t.cs });
       }
+      // Signal aspects (for auto-close by shortCircuit, not covered by action broadcasts)
       var sigs = {}; if (window.S.sig) { for (var sid in window.S.sig) sigs[sid] = window.S.sig[sid].asp; }
-      var segs = {}; if (window.S.seg) { for (var segId in window.S.seg) { var sg = window.S.seg[segId]; segs[segId] = (sg.occ ? 2 : sg.res ? 1 : 0); } }
-      var sws = {}; if (window.S.sw) { for (var swId in window.S.sw) { var sw = window.S.sw[swId]; sws[swId] = sw.pos + (sw.lk ? 'L' : ''); } }
-      var blks = []; if (window.S.blk) { for (var bn = 0; bn < window.S.blk.length; bn++) { var b = window.S.blk[bn]; blks.push(b ? b.s[0] + (b.d || '') : ''); } }
-      var bv2 = []; if (window.S.blkV2) { for (var bvn = 0; bvn < window.S.blkV2.length; bvn++) { var bv = window.S.blkV2[bvn]; bv2.push(bv ? bv.s[0] + (bv.d || '') : ''); } }
-      syncSeq++;
-      // Regular emit, NOT volatile
-      socket.emit('train:sync', { seq: syncSeq, trains: d, sigs: sigs, segs: segs, sws: sws, blks: blks, bv2: bv2, paused: window.S.paused, trSpeedMult: window.trSpeedMult || 1, simTime: window.simTime || 0 });
-      var sc = document.getElementById('syncCounter'); if (sc) sc.textContent = 'TX:' + syncSeq + ' T:' + d.length;
+      socket.emit('train:sync', { trains: d, sigs: sigs, paused: window.S.paused, simTime: window.simTime || 0, trSpeedMult: window.trSpeedMult || 1 });
+      var dbg = document.getElementById('syncDbg'); if (dbg) dbg.textContent = 'TX T:' + d.length;
     }, 250);
   }
 
   // ══════════════════════════════════════════════════
-  // CGO & MAQUINISTA — Ghost trains, full state from RC
+  // CGO: No user interaction, but receives everything
+  // ══════════════════════════════════════════════════
+  if (role === 'cgo') {
+    // Block USER clicks (but originals still available for broadcasts via _bypass)
+    window.onSig = function(id) { if (_bypass) return O.onSig(id); };
+    window.onSw = function(id) { if (_bypass) return O.onSw(id); };
+    // Block sidebar buttons
+    ['spawnTrain','runScn'].forEach(function(fn) { window[fn] = function() { if (_bypass && O[fn]) return O[fn].apply(null, arguments); }; });
+
+    setTimeout(function() {
+      var mi = document.getElementById('mi'); if (mi) mi.textContent = 'OBSERVADOR CGO';
+      document.querySelectorAll('.sg').forEach(function(s) { var t = s.querySelector('.sg-t'); if (!t) return; var tx = t.textContent.toLowerCase();
+        if (tx.indexOf('modo') >= 0 || tx.indexOf('manual') >= 0 || tx.indexOf('tren manual') >= 0 || tx.indexOf('grabación') >= 0 || tx.indexOf('escenario') >= 0 || tx.indexOf('rutas') >= 0 || tx.indexOf('bloqueos') >= 0) s.style.display = 'none'; });
+      var sp = document.getElementById('spdSel'); if (sp) sp.parentElement.style.display = 'none';
+      document.querySelectorAll('.sg').forEach(function(s) { if (s.querySelector('#pBtn')) s.style.display = 'none'; });
+    }, 500);
+  }
+
+  // ══════════════════════════════════════════════════
+  // MAQUINISTA: Cab view + receives everything
+  // ══════════════════════════════════════════════════
+  if (role === 'maquinista') {
+    // Block user clicks
+    window.onSig = function(id) { if (_bypass) return O.onSig(id); };
+    window.onSw = function(id) { if (_bypass) return O.onSw(id); };
+    ['spawnTrain','runScn'].forEach(function(fn) { window[fn] = function() { if (_bypass && O[fn]) return O[fn].apply(null, arguments); }; });
+    setTimeout(buildCabView, 300);
+  }
+
+  // ══════════════════════════════════════════════════
+  // CGO & MAQ: Disable local train movement, receive positions from RC
   // ══════════════════════════════════════════════════
   if (role === 'cgo' || role === 'maquinista') {
-    // Disable ALL local simulation and interaction
-    window.tickTrains = function() {};
-    window.doSpawn = function() {};
-    window.spawnTrain = function() {};
-    ['openRoute','cancelRoute','mAsp','reqBlk','grantBlk','clearBlk','scenario',
-     'resetSim','resetSim2','runScn','undoLast','trCmd','tPause','setTrSpeed'].forEach(function(fn) { window[fn] = function() {}; });
-    window.onSig = function() {}; window.onSw = function() {}; window.sigToSig = function() {};
+    // ★ KEY: Disable local train simulation ★
+    // Trains are created by doSpawn (via broadcast), but don't move locally.
+    // Positions come from RC master via train:sync.
+    window.tickTrains = function() { /* disabled */ };
 
-    // Also disable the CTC's main loop from doing anything
-    // The loop still runs (rAF) but tickTrains is empty, so trains don't move locally
-    // We just need to prevent simTime and S.tick from diverging
-    // Override the loop's simTime increment by resetting on each sync
-    
-    // Ghost trains
-    var ghosts = {};
-    var gTR = null;
-    // Wait for DOM
-    setTimeout(function() { gTR = document.getElementById('gTR'); }, 100);
-
-    function ensureGhost(id, color) {
-      if (ghosts[id]) return ghosts[id];
-      if (!gTR) gTR = document.getElementById('gTR');
-      if (!gTR) return null;
-      var g = document.createElementNS(ns, 'g');
-      var r = document.createElementNS(ns, 'rect');
-      r.setAttribute('width', '54'); r.setAttribute('height', '20'); r.setAttribute('rx', '4');
-      r.setAttribute('fill', color || '#e8a020'); r.setAttribute('stroke', '#000'); r.setAttribute('stroke-width', '1.5');
-      g.appendChild(r);
-      var t = document.createElementNS(ns, 'text');
-      t.setAttribute('x', '27'); t.setAttribute('y', '15'); t.setAttribute('fill', '#1a0800');
-      t.setAttribute('font-family', 'Share Tech Mono,monospace'); t.setAttribute('font-size', '11');
-      t.setAttribute('font-weight', '900'); t.setAttribute('text-anchor', 'middle');
-      t.textContent = id; g.appendChild(t);
-      gTR.appendChild(g);
-      ghosts[id] = { g: g };
-      return ghosts[id];
-    }
-
-    function killGhost(id) {
-      if (ghosts[id]) { if (ghosts[id].g.parentNode) ghosts[id].g.parentNode.removeChild(ghosts[id].g); delete ghosts[id]; }
-    }
-
-    // ── RECEIVE SYNC ──
     socket.on('train:sync', function(data) {
-      syncCount++;
-      var sc = document.getElementById('syncCounter'); if (sc) sc.textContent = 'RX:' + (data.seq || '?') + ' #' + syncCount + ' T:' + (data.trains ? data.trains.length : 0);
+      syncRx++;
+      var dbg = document.getElementById('syncDbg'); if (dbg) dbg.textContent = 'RX#' + syncRx + ' T:' + (data.trains ? data.trains.length : 0);
 
-      // Sync pause
       if (window.S) {
         if (typeof data.paused === 'boolean') window.S.paused = data.paused;
         if (typeof data.simTime === 'number') window.simTime = data.simTime;
         if (typeof data.trSpeedMult === 'number') window.trSpeedMult = data.trSpeedMult;
       }
 
-      // ── GHOST TRAINS ──
       var st = data.trains || [];
-      var alive = {};
-      for (var i = 0; i < st.length; i++) {
-        var td = st[i]; alive[td.id] = true;
-        var gh = ensureGhost(td.id, td.color);
-        if (gh) gh.g.setAttribute('transform', 'translate(' + (td.x - 27) + ',' + (td.y - 10) + ')');
-      }
-      for (var gid in ghosts) { if (!alive[gid]) killGhost(gid); }
 
-      // ── SIGNALS ──
+      // Position each train using x,y from RC
+      for (var i = 0; i < st.length; i++) {
+        var sd = st[i];
+        // Find local train (created by doSpawn broadcast)
+        var local = null;
+        if (window.S && window.S.trains) {
+          for (var j = 0; j < window.S.trains.length; j++) {
+            if (window.S.trains[j].id === sd.id) { local = window.S.trains[j]; break; }
+          }
+        }
+        if (!local) continue;
+
+        // Update state
+        local.spd = sd.spd; local.w = sd.w; local.mHold = sd.mHold;
+        local.sl = sd.sl; local.dir = sd.dir; local.stopTimer = sd.stopTimer;
+
+        // ★ Move SVG directly using RC's x,y coordinates ★
+        if (local.el) {
+          local.el.setAttribute('transform', 'translate(' + (sd.x - 27) + ',' + (sd.y - 10) + ')');
+        }
+
+        // Update segment occupation
+        if (sd.cs !== local.cs) {
+          if (local.cs && window.S.seg[local.cs]) { window.S.seg[local.cs].occ = false; if (O.updSeg) O.updSeg(local.cs); }
+          local.cs = sd.cs;
+          if (local.cs && window.S.seg[local.cs]) { window.S.seg[local.cs].occ = true; if (O.updSeg) O.updSeg(local.cs); }
+        }
+
+        // Store x,y for maquinista cab
+        local._rx = sd.x; local._ry = sd.y;
+      }
+
+      // Sync signal aspects (catches auto-closures from shortCircuit on RC)
       if (data.sigs && window.S && window.S.sig) {
         for (var sigId in data.sigs) {
           if (window.S.sig[sigId] && window.S.sig[sigId].asp !== data.sigs[sigId]) {
@@ -185,83 +189,29 @@
         }
       }
 
-      // ── SEGMENTS ──
-      if (data.segs && window.S && window.S.seg) {
-        for (var segId in data.segs) {
-          var ls = window.S.seg[segId]; if (!ls) continue;
-          var v = data.segs[segId]; // 0=free, 1=reserved, 2=occupied
-          var newOcc = v === 2, newRes = v === 1;
-          if (ls.occ !== newOcc || ls.res !== newRes) {
-            ls.occ = newOcc; ls.res = newRes;
-            if (O.updSeg) O.updSeg(segId);
-          }
-        }
-      }
-
-      // ── SWITCHES ──
-      if (data.sws && window.S && window.S.sw) {
-        for (var swId in data.sws) {
-          var lsw = window.S.sw[swId]; if (!lsw) continue;
-          var sv = data.sws[swId]; // "NL" or "N" or "RL" or "R"
-          var newPos = sv[0]; var newLk = sv.length > 1 && sv[1] === 'L';
-          if (lsw.pos !== newPos || lsw.lk !== newLk) {
-            lsw.pos = newPos; lsw.lk = newLk;
-            if (typeof window.updSw === 'function') window.updSw(swId);
-          }
-        }
-      }
-
-      // ── BLOCKS ──
-      var blkMap = { l: 'libre', p: 'pedido', c: 'concedido', o: 'ocupado' };
-      if (data.blks && window.S && window.S.blk) {
-        for (var bn = 1; bn < data.blks.length && bn < window.S.blk.length; bn++) {
-          if (!data.blks[bn] || !window.S.blk[bn]) continue;
-          var bStr = data.blks[bn]; // e.g. "c→" or "l"
-          var bState = blkMap[bStr[0]] || 'libre';
-          var bDir = bStr.length > 1 ? bStr.substring(1) : null;
-          if (window.S.blk[bn].s !== bState || window.S.blk[bn].d !== bDir) {
-            window.S.blk[bn].s = bState; window.S.blk[bn].d = bDir;
-            if (O.updBlkD) O.updBlkD(bn, 'V1');
-          }
-        }
-      }
-      if (data.bv2 && window.S && window.S.blkV2) {
-        for (var bvn = 1; bvn < data.bv2.length && bvn < window.S.blkV2.length; bvn++) {
-          if (!data.bv2[bvn] || !window.S.blkV2[bvn]) continue;
-          var bv2Str = data.bv2[bvn];
-          var bv2State = blkMap[bv2Str[0]] || 'libre';
-          var bv2Dir = bv2Str.length > 1 ? bv2Str.substring(1) : null;
-          if (window.S.blkV2[bvn].s !== bv2State || window.S.blkV2[bvn].d !== bv2Dir) {
-            window.S.blkV2[bvn].s = bv2State; window.S.blkV2[bvn].d = bv2Dir;
-            if (O.updBlkD) O.updBlkD(bvn, 'V2');
-          }
-        }
-      }
+      // Update UI
+      if (O.updTrainPanel) O.updTrainPanel();
 
       // Maquinista cab
       if (role === 'maquinista') {
         if (myTrainId) renderCab(st, data.sigs);
-        else if (st.length > 0) updateTrainGrid(st);
+        else if (st.length > 0) refreshMaqGrid();
       }
     });
-
-    // CGO: hide UI
-    if (role === 'cgo') {
-      setTimeout(function() {
-        var mi = document.getElementById('mi'); if (mi) mi.textContent = 'OBSERVADOR CGO';
-        document.querySelectorAll('.sg').forEach(function(s) { var t = s.querySelector('.sg-t'); if (!t) return; var tx = t.textContent.toLowerCase();
-          if (tx.indexOf('modo') >= 0 || tx.indexOf('manual') >= 0 || tx.indexOf('tren manual') >= 0 || tx.indexOf('grabación') >= 0 || tx.indexOf('escenario') >= 0 || tx.indexOf('rutas') >= 0 || tx.indexOf('bloqueos') >= 0) s.style.display = 'none'; });
-        var sp = document.getElementById('spdSel'); if (sp) sp.parentElement.style.display = 'none';
-        document.querySelectorAll('.sg').forEach(function(s) { if (s.querySelector('#pBtn')) s.style.display = 'none'; });
-      }, 500);
-    }
-    if (role === 'maquinista') setTimeout(buildCabView, 300);
   }
 
   // ══════════════════════════════════════════════════
-  // MAQUINISTA CAB
+  // ALL ROLES: Execute action broadcasts
+  // ══════════════════════════════════════════════════
+  socket.on('action:exec', function(d) {
+    execLocal(d.type, d.args, d.ctx);
+  });
+
+  // ══════════════════════════════════════════════════
+  // MAQUINISTA CAB VIEW
   // ══════════════════════════════════════════════════
   var cabCanvas = null, cabCtx = null, cabBuilt = false;
+
   function buildCabView() {
     if (cabBuilt) return; cabBuilt = true;
     var dw = document.querySelector('.dw'); if (dw) dw.style.display = 'none';
@@ -274,13 +224,13 @@
       '<div style="font:bold 24px Rajdhani,sans-serif;color:#f59e0b">🚂 Selecciona tu tren</div>' +
       '<div style="font:12px \'Share Tech Mono\',monospace;color:#4a6070">RC debe lanzar tren (Tren Manual → Lanzar)</div>' +
       '<div id="maqTrainGrid" style="display:flex;flex-wrap:wrap;gap:10px;justify-content:center;max-width:600px"></div>' +
-      '<div id="maqWaiting" style="font:11px \'Share Tech Mono\',monospace;color:#ffc144">Esperando...</div></div>' +
+      '<div id="maqWaiting" style="font:11px \'Share Tech Mono\',monospace;color:#ffc144">Esperando trenes...</div></div>' +
       '<div id="cabInner" style="flex:1;display:none;flex-direction:column;">' +
       '<div style="flex:1;position:relative;overflow:hidden;background:#080c14;min-height:200px"><canvas id="cabCanvas" style="width:100%;height:100%;display:block"></canvas></div>' +
       '<div style="height:100px;background:#0d1117;border-top:1px solid #1c2535;display:flex;align-items:center;justify-content:center;gap:20px;padding:10px;flex-wrap:wrap;">' +
       '<div style="text-align:center;min-width:60px"><div style="font:bold 36px Rajdhani,sans-serif;color:#00e87a" id="cabSpeed">0</div><div style="font:8px \'Share Tech Mono\',monospace;color:#4a6070">km/h</div></div>' +
       '<div style="min-width:100px"><div style="font:10px \'Share Tech Mono\',monospace;color:#fff" id="cabTrainId">---</div><div style="font:9px \'Share Tech Mono\',monospace;color:#4a6070" id="cabState">---</div><div style="font:9px \'Share Tech Mono\',monospace;color:#4a6070" id="cabPos">---</div></div>' +
-      '<div style="display:flex;gap:4px"><button onclick="window._maqCmd(\'go\')" style="padding:6px 12px;font:bold 12px Rajdhani;background:#0e3320;color:#44dd77;border:1px solid #1a5533;border-radius:4px;cursor:pointer">▶</button><button onclick="window._maqCmd(\'stop\')" style="padding:6px 12px;font:bold 12px Rajdhani;background:#661616;color:#ff6666;border:1px solid #882222;border-radius:4px;cursor:pointer">⏹</button><button onclick="window._maqCmd(\'rev\')" style="padding:6px 12px;font:bold 12px Rajdhani;background:#1a1a40;color:#8888ff;border:1px solid #333366;border-radius:4px;cursor:pointer">↩</button></div>' +
+      '<div style="display:flex;gap:4px"><button onclick="window._maqCmd(\'go\')" style="padding:6px 12px;font:bold 12px Rajdhani;background:#0e3320;color:#44dd77;border:1px solid #1a5533;border-radius:4px;cursor:pointer">▶ Marcha</button><button onclick="window._maqCmd(\'stop\')" style="padding:6px 12px;font:bold 12px Rajdhani;background:#661616;color:#ff6666;border:1px solid #882222;border-radius:4px;cursor:pointer">⏹ Parar</button><button onclick="window._maqCmd(\'rev\')" style="padding:6px 12px;font:bold 12px Rajdhani;background:#1a1a40;color:#8888ff;border:1px solid #333366;border-radius:4px;cursor:pointer">↩ Retro</button></div>' +
       '<div style="display:flex;align-items:center;gap:4px"><div id="cabSigAsp" style="width:16px;height:16px;border-radius:50%;background:#222;border:2px solid #333"></div><div id="cabSigName" style="font:9px \'Share Tech Mono\',monospace;color:#8888aa">---</div></div></div></div>';
     var app = document.querySelector('.app'); if (app) app.appendChild(cab);
     window._maqCmd = function(cmd) { if (myTrainId && connected) socket.emit('maq:cmd', { trainId: myTrainId, cmd: cmd }); };
@@ -289,15 +239,23 @@
     window.addEventListener('resize', function() { if (cabCanvas && cabCanvas.parentElement) { cabCanvas.width = cabCanvas.parentElement.clientWidth; cabCanvas.height = cabCanvas.parentElement.clientHeight; } });
   }
 
-  function updateTrainGrid(trains) {
+  // Build train selection from LOCAL S.trains (created by doSpawn broadcast)
+  var lastGridLen = -1;
+  function refreshMaqGrid() {
+    if (!cabBuilt || myTrainId) return;
     var grid = document.getElementById('maqTrainGrid'), wait = document.getElementById('maqWaiting');
-    if (!grid) return;
+    if (!grid || !window.S || !window.S.trains) return;
+    var active = [];
+    for (var i = 0; i < window.S.trains.length; i++) { if (!window.S.trains[i].done) active.push(window.S.trains[i]); }
+    if (active.length === 0) { if (wait) wait.style.display = ''; return; }
+    if (active.length === lastGridLen) return;
+    lastGridLen = active.length;
     if (wait) wait.style.display = 'none';
     grid.innerHTML = '';
-    for (var i = 0; i < trains.length; i++) {
-      var tr = trains[i], card = document.createElement('div');
+    for (var j = 0; j < active.length; j++) {
+      var tr = active[j], card = document.createElement('div');
       card.style.cssText = 'padding:14px 20px;background:#151b25;border:2px solid #1c2535;border-radius:8px;cursor:pointer;text-align:center;min-width:100px;';
-      card.innerHTML = '<div style="width:32px;height:12px;background:' + (tr.color || '#e8a020') + ';border-radius:3px;margin:0 auto 6px"></div><div style="font:bold 18px \'Share Tech Mono\',monospace;color:#fff">' + tr.id + '</div><div style="font:10px \'Share Tech Mono\',monospace;color:#4a6070">' + (tr.dir === 'AB' ? '→' : '←') + '</div>';
+      card.innerHTML = '<div style="width:32px;height:12px;background:' + (tr.color || '#e8a020') + ';border-radius:3px;margin:0 auto 6px"></div><div style="font:bold 18px \'Share Tech Mono\',monospace;color:#fff">' + tr.id + '</div><div style="font:10px \'Share Tech Mono\',monospace;color:#4a6070">' + (tr.dir === 'AB' ? '→ Par' : '← Impar') + '</div>';
       card.onmouseover = function() { this.style.borderColor = '#f59e0b'; };
       card.onmouseout = function() { this.style.borderColor = '#1c2535'; };
       (function(tid) { card.onclick = function() { myTrainId = tid; document.getElementById('maqSelect').style.display = 'none'; document.getElementById('cabInner').style.display = 'flex'; document.getElementById('cabTrainId').textContent = 'Tren ' + tid; if (cabCanvas && cabCanvas.parentElement) { cabCanvas.width = cabCanvas.parentElement.clientWidth; cabCanvas.height = cabCanvas.parentElement.clientHeight; } }; })(tr.id);
@@ -329,9 +287,6 @@
     el = document.getElementById('cabSigName'); if (el) el.textContent = nSN;
     var nc = sigC[nSA] || '#222'; el = document.getElementById('cabSigAsp'); if (el) { el.style.background = nc; el.style.borderColor = nc === '#222' ? '#333' : nc; }
   }
-
-  // Only RC processes action broadcasts
-  socket.on('action:exec', function(d) { if (role === 'rc') execB(d.type, d.args, d.ctx); });
 
   // Connection
   socket.on('connect', function() { socket.emit('room:join', { name: name, code: room, role: role }, function(res) { var el = document.getElementById('syncStatus'); if (res.ok) { connected = true; isMaster = !!res.isMaster; el.innerHTML = '🟢'; el.style.color = '#00e87a'; if (isMaster) { var m = document.getElementById('syncMaster'); if (m) m.textContent = '★ MASTER'; } } else { el.innerHTML = '🔴'; el.style.color = '#ff4444'; } }); });
